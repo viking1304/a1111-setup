@@ -24,7 +24,7 @@ Since some people might not want to update brew, update is disabled by default, 
 
 **Note:** you can try and see which of command line parameters below works the best for you.
 
-Args implemented by A1111 team:
+Args for Macs implemented by A1111 team:
 ```
 export COMMANDLINE_ARGS="--skip-torch-cuda-test --upcast-sampling --no-half-vae --use-cpu interrogate"
 ```
