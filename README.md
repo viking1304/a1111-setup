@@ -24,24 +24,24 @@ Since some people might not want to update brew, update is disabled by default, 
 
 **Note:** you can try and see which of command line parameters below works the best for you.
 
-```
 Args implemented by A1111 team:
+```
 export COMMANDLINE_ARGS="--skip-torch-cuda-test --upcast-sampling --no-half-vae --use-cpu interrogate"
 ```
 
-```
 My recommandation for most Macs:
+```
 export COMMANDLINE_ARGS="--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --medvram-sdxl"
 ```
 
-```
 For special cases when `--no-half-vae` produce only noise:
+```
 export COMMANDLINE_ARGS="--skip-torch-cuda-test --upcast-sampling --no-half --use-cpu interrogate"
 export COMMANDLINE_ARGS="--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half --medvram-sdxl"
 ```
 
-```
 Those combinations also worked without error on my Macs:
+```
 export COMMANDLINE_ARGS="--skip-torch-cuda-test --opt-split-attention-v1 --opt-sub-quad-attention --upcast-sampling --no-half-vae --medvram-sdxl"
 export COMMANDLINE_ARGS="--skip-torch-cuda-test --upcast-sampling --no-half-vae --medvram-sdxl"
 export COMMANDLINE_ARGS="--skip-torch-cuda-test --opt-split-attention-v1 --upcast-sampling --no-half-vae --medvram-sdxl"
