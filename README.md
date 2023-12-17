@@ -31,7 +31,7 @@ export COMMANDLINE_ARGS="--skip-torch-cuda-test --upcast-sampling --no-half-vae 
 
 My recommandation for most Macs:
 ```
-export COMMANDLINE_ARGS="--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --medvram-sdxl"
+export COMMANDLINE_ARGS="--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --medvram-sdxl --use-cpu interrogate"
 ```
 
 For special cases when `--no-half-vae` produce only noise:
