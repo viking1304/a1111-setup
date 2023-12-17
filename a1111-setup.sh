@@ -12,9 +12,9 @@
 # Bugs: ---
 # Notes: ---
 # Author: Aleksandar Milanovic (viking1304)
-# Version: 0.0.2
+# Version: 0.0.3
 # Created: 2023/12/12 19:30:51
-# Last modified: 2022/16/12 16:00:07
+# Last modified: 2022/17/12 20:19:03
 
 # Copyright (c) 2023 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -36,6 +36,9 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
+readonly VERSION='0.0.3'
+readonly YEAR='2023'
 
 # install stable version of PyTorch and only fix errors by default
 update_brew=false
@@ -84,22 +87,39 @@ install_a1111() {
     cd stable-diffusion-webui
     # force A1111 upgrade
     if [[ -d ".git" ]]; then
-      echo "Forcing A1111 upgrade..."
+      echo "\nForcing A1111 upgrade..."
       git reset --hard origin/master
       git pull
+      if [[ "$(git status | grep modified)" != "" ]]; then
+        echo "\nERROR: some A1111 files are still modifed"
+        show_modified
+        exit 1
+      fi
     else
       echo "\nCurrent version is not installed using git!\nPlease rename or remove folder ${HOME}/stable-diffusion-webui and try again"
       exit 1
     fi
     # purge pip cache
     if [[ -f "venv/bin/pip" ]]; then  
-      echo "Purging pip cache..."
+      echo "\nPurging pip cache..."
       venv/bin/pip cache purge
     fi
     # remove venv
     if [[ -d "venv" ]]; then  
-      echo "Removing venv..."
-      rm -rf venv
+      echo "\nTring to remove venv..."
+      rm -rf venv 2> /dev/null
+        if [[ ! -d "venv" ]]; then
+          echo "Succesfully removed venv"
+        else
+          echo "Could not remove venv\nTring to remove venv using admin privileges..."
+          sudo rm -rf venv 2> /dev/null
+          if [[ ! -d "venv" ]]; then
+            echo "Succesfully removed venv using admin privileges"
+          else
+            echo "ERROR: could not remove venv even using admin privileges"
+            exit 1
+          fi
+        fi
     fi
   fi
 }
@@ -123,12 +143,13 @@ apply_fixes() {
   fi
   if [[ "$fix" == "all" ]]; then
     echo "Add recommended command line parameters..."
-    sed -i '' 's/#export COMMANDLINE_ARGS=""/#export COMMANDLINE_ARGS=""\nexport COMMANDLINE_ARGS="--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --medvram-sdxl"/' webui-user.sh
+    sed -i '' 's/#export COMMANDLINE_ARGS=""/#export COMMANDLINE_ARGS=""\nexport COMMANDLINE_ARGS="--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --medvram-sdxl --use-cpu interrogate"/' webui-user.sh
   fi
   if [[ "$fix" == "all" || "$fix" == "errors" ]]; then
     echo "Fix cannot convert a MPS Tensor to float64 dtype error..."
     sed -i '' "/^                    dtype = sd_param.dtype if sd_param is not None else param.dtype/,/^ *[^:]*:/s/module._parameters\[name\] = torch.nn.parameter.Parameter/if dtype == torch.float64 and device.type == 'mps':\n                      dtype = torch.float32\n                    module._parameters\[name\] = torch.nn.parameter.Parameter/" modules/sd_disable_initialization.py
   fi
+  show_modified
 }
 
 parase_parameters() {
@@ -161,12 +182,21 @@ parase_parameters() {
   done
 }
 
+show_modified() {
+  echo "\nList of modified files:"
+  git status | grep modified | sed 's/	modified: //'
+}
+
 main() {
   # Exit script if not run on macOS
   if [[ "$(uname -s)" != "Darwin" ]]; then
     echo "This script can only be used on macOS!"
     exit 1
   fi  
+
+  echo "\n-----------------------------------\n"
+  echo " A1111-setup v$VERSION\n Copyright (c) $YEAR\n Aleksandar Milanovic (viking1304)\n"
+  echo "-----------------------------------\n"
 
   parase_parameters "$@"
 
@@ -198,6 +228,8 @@ main() {
   apply_fixes
 
   # run webui
+  echo "\n----------------------------------------------------------------\n"
+  echo "\nLaunching A1111..."
   ./webui.sh
 
   echo ""
