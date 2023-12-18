@@ -22,9 +22,13 @@ By default only errors will be fixed, but you can also aplly command line param 
 
 Since some people might not want to update brew, update is disabled by default, but you can update brew using `-b` option.
 
-**Note:** you can try and see which of the command line parameters below works the best for you.
+**Additonal Nots**
 
-Args for Macs implemented by A1111 team:
+In some cases, default command line parameters provided by the A1111 team are not the best choice, and in some very rare cases, they do not work.
+
+You can try and see which of the command line parameters below works the best for you.
+
+Args for Macs implemented by the A1111 team:
 ```
 export COMMANDLINE_ARGS="--skip-torch-cuda-test --upcast-sampling --no-half-vae --use-cpu interrogate"
 ```
