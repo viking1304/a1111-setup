@@ -22,7 +22,7 @@ By default only errors will be fixed, but you can also aplly command line param 
 
 Since some people might not want to update brew, update is disabled by default, but you can update brew using `-b` option.
 
-**Note:** you can try and see which of command line parameters below works the best for you.
+**Note:** you can try and see which of the command line parameters below works the best for you.
 
 Args for Macs implemented by A1111 team:
 ```
