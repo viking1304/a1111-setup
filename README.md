@@ -22,7 +22,7 @@ By default only errors will be fixed, but you can also aplly command line param 
 
 Since some people might not want to update brew, update is disabled by default, but you can update brew using `-b` option.
 
-**Additonal Nots**
+**Additonal Notes**
 
 In some cases, default command line parameters provided by the A1111 team are not the best choice, and in some very rare cases, they do not work.
 
