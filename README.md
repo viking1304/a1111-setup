@@ -29,7 +29,7 @@ Args for Macs implemented by A1111 team:
 export COMMANDLINE_ARGS="--skip-torch-cuda-test --upcast-sampling --no-half-vae --use-cpu interrogate"
 ```
 
-My recommandation for most Macs:
+My recommendation for most Macs:
 ```
 export COMMANDLINE_ARGS="--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --medvram-sdxl --use-cpu interrogate"
 ```
