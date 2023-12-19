@@ -12,9 +12,9 @@
 # Bugs: ---
 # Notes: ---
 # Author: Aleksandar Milanovic (viking1304)
-# Version: 0.0.3
+# Version: 0.0.4
 # Created: 2023/12/12 19:30:51
-# Last modified: 2022/17/12 20:19:03
+# Last modified: 2022/19/12 22:39:03
 
 # Copyright (c) 2023 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -44,6 +44,7 @@ readonly YEAR='2023'
 update_brew=false
 torch="stable"
 fix="errors"
+df="${HOME}/stable-diffusion-webui"
 
 # Install Homebrew
 install_homebrew() {
@@ -74,17 +75,15 @@ detect_cpu() {
 }
 
 install_a1111() {
-  # go to home folder
-  cd
   # check if destination folder exists
-  if [[ ! -d "stable-diffusion-webui" ]]; then
+  if [[ ! -d "$df" ]]; then
     echo "\nNew installation. Cloning A1111..."
     # clone automatic1111
-    git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui
-    cd stable-diffusion-webui
+    git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui "$df"
+    cd "$df"
   else
-    echo "\nExisting installation detected..."
-    cd stable-diffusion-webui
+    echo "\nExisting installation detected in $df..."
+    cd "$df"
     # force A1111 upgrade
     if [[ -d ".git" ]]; then
       echo "\nForcing A1111 upgrade..."
@@ -96,8 +95,10 @@ install_a1111() {
         exit 1
       fi
     else
-      echo "\nCurrent version is not installed using git!\nPlease rename or remove folder ${HOME}/stable-diffusion-webui and try again"
-      exit 1
+      if [[ "$(ls -A $df)" ]]; then
+        echo "\nCurrent version is not installed using git!\nPlease rename or remove folder $df and try again"
+        exit 1
+      fi
     fi
     # purge pip cache
     if [[ -f "venv/bin/pip" ]]; then  
@@ -155,7 +156,7 @@ apply_fixes() {
 parase_parameters() {
   usage() { echo "$0 usage:" && grep "[[:space:]].)\ #" $0 | sed 's/#//' | sed -r 's/([a-z])\) /[-\1/'; exit 0; }
   #(( $# == 0 )) && usage
-  while getopts ":hbt:f:" arg; do
+  while getopts ":hbt:f:d:" arg; do
     case $arg in
       t) # stable|develop] stable or develop version of PyTorch
         torch=${OPTARG}
@@ -170,6 +171,15 @@ parase_parameters() {
           echo "parameter -f must be all, errors or none"
           exit 1
         fi
+        ;;
+      d) # folder_name] specify the destination folder for A1111 installation
+        df=${OPTARG}
+        # treat destination as subfolder of home directory, unless it starts with slash
+        if [[ "${df:0:1}" != '/' ]]; then
+          df="$HOME/$df"
+        fi
+        # remove trailing slash
+        df=${df%/}
         ;;
       b) #] update Homebrew
         update_brew=true
