@@ -14,7 +14,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.0.4
 # Created: 2023/12/12 19:30:51
-# Last modified: 2022/19/12 22:39:03
+# Last modified: 2022/19/12 22:55:03
 
 # Copyright (c) 2023 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -37,7 +37,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-readonly VERSION='0.0.3'
+readonly VERSION='0.0.4'
 readonly YEAR='2023'
 
 # install stable version of PyTorch and only fix errors by default
@@ -80,7 +80,11 @@ install_a1111() {
     echo "\nNew installation. Cloning A1111..."
     # clone automatic1111
     git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui "$df"
-    cd "$df"
+    if [ $? -ne 0 ]; then
+      exit 1
+    else
+      cd "$df"
+    fi
   else
     echo "\nExisting installation detected in $df..."
     cd "$df"
