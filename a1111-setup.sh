@@ -12,9 +12,9 @@
 # Bugs: ---
 # Notes: ---
 # Author: Aleksandar Milanovic (viking1304)
-# Version: 0.0.4
+# Version: 0.0.5
 # Created: 2023/12/12 19:30:51
-# Last modified: 2022/19/12 22:55:03
+# Last modified: 2022/22/12 01:55:05
 
 # Copyright (c) 2023 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -37,7 +37,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-readonly VERSION='0.0.4'
+readonly VERSION='0.0.5'
 readonly YEAR='2023'
 
 # install stable version of PyTorch and only fix errors by default
@@ -77,7 +77,7 @@ detect_cpu() {
 install_a1111() {
   # check if destination folder exists
   if [[ ! -d "$df" ]]; then
-    echo "\nNew installation. Cloning A1111..."
+    echo "\nInstalling A1111 into $df\n"
     # clone automatic1111
     git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui "$df"
     if [ $? -ne 0 ]; then
@@ -86,23 +86,27 @@ install_a1111() {
       cd "$df"
     fi
   else
-    echo "\nExisting installation detected in $df..."
+    if [[ "$(ls -A $df)" ]]; then
+      echo "\nUpdating A1111 installation in $df\n"
+    else
+      echo "\nInstalling A1111 into $df\n"
+    fi
     cd "$df"
     # force A1111 upgrade
     if [[ -d ".git" ]]; then
-      echo "\nForcing A1111 upgrade..."
       git reset --hard origin/master
-      git pull
-      if [[ "$(git status | grep modified)" != "" ]]; then
-        echo "\nERROR: some A1111 files are still modifed"
-        show_modified
-        exit 1
-      fi
     else
-      if [[ "$(ls -A $df)" ]]; then
-        echo "\nCurrent version is not installed using git!\nPlease rename or remove folder $df and try again"
-        exit 1
-      fi
+      git init
+      git remote add origin https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
+      git fetch --all
+      git reset --hard origin/master
+      git branch --set-upstream-to=origin/master master
+    fi
+    git pull
+    if [[ "$(git status | grep modified)" != "" ]]; then
+      echo "\nERROR: some A1111 files are still modifed"
+      show_modified
+      exit 1
     fi
     # purge pip cache
     if [[ -f "venv/bin/pip" ]]; then  
