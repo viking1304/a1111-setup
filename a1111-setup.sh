@@ -12,9 +12,9 @@
 # Bugs: ---
 # Notes: ---
 # Author: Aleksandar Milanovic (viking1304)
-# Version: 0.0.5
+# Version: 0.0.6
 # Created: 2023/12/12 19:30:51
-# Last modified: 2022/22/12 01:55:05
+# Last modified: 2024/03/06 22:21:41
 
 # Copyright (c) 2023 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -37,8 +37,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-readonly VERSION='0.0.5'
-readonly YEAR='2023'
+readonly VERSION='0.0.6'
+readonly YEAR='2024'
 
 # install stable version of PyTorch and only fix errors by default
 update_brew=false
@@ -61,36 +61,38 @@ install_homebrew() {
 }
 
 detect_cpu() {
-  echo "\nDetecting processor..."
+  echo -e "\nDetecting processor..."
   if [[ "$(sysctl -n machdep.cpu.brand_string)" =~ ^.*"Apple".*$ ]]; then
-    echo "ARM processor detected\n"
+    echo -e "ARM processor detected\n"
 
     # temporary add Brew to path on ARM
     eval "$(/opt/homebrew/bin/brew shellenv)"
   fi
 
   if [[ "$(sysctl -n machdep.cpu.brand_string)" =~ ^.*"Intel".*$ ]]; then
-      echo "Intel processor detected\n"
+      echo -e "Intel processor detected\n"
   fi
 }
 
 install_a1111() {
   # check if destination folder exists
   if [[ ! -d "$df" ]]; then
-    echo "\nInstalling A1111 into $df\n"
+    echo -e "\nInstalling A1111 into $df\n"
     # clone automatic1111
-    git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui "$df"
-    if [ $? -ne 0 ]; then
+
+    if ! git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui "$df"; then
       exit 1
     else
+      # shellcheck disable=SC2164
       cd "$df"
     fi
   else
-    if [[ "$(ls -A $df)" ]]; then
-      echo "\nUpdating A1111 installation in $df\n"
+    if [[ "$(ls -A "$df")" ]]; then
+      echo -e "\nUpdating A1111 installation in $df\n"
     else
-      echo "\nInstalling A1111 into $df\n"
+      echo -e "\nInstalling A1111 into $df\n"
     fi
+    # shellcheck disable=SC2164
     cd "$df"
     # force A1111 upgrade
     if [[ -d ".git" ]]; then
@@ -104,23 +106,23 @@ install_a1111() {
     fi
     git pull
     if [[ "$(git status | grep modified)" != "" ]]; then
-      echo "\nERROR: some A1111 files are still modifed"
+      echo -e "\nERROR: some A1111 files are still modifed"
       show_modified
       exit 1
     fi
     # purge pip cache
     if [[ -f "venv/bin/pip" ]]; then  
-      echo "\nPurging pip cache..."
+      echo -e "\nPurging pip cache..."
       venv/bin/pip cache purge
     fi
     # remove venv
     if [[ -d "venv" ]]; then  
-      echo "\nTring to remove venv..."
+      echo -e "\nTring to remove venv..."
       rm -rf venv 2> /dev/null
         if [[ ! -d "venv" ]]; then
           echo "Succesfully removed venv"
         else
-          echo "Could not remove venv\nTring to remove venv using admin privileges..."
+          echo -e "Could not remove venv\nTring to remove venv using admin privileges..."
           sudo rm -rf venv 2> /dev/null
           if [[ ! -d "venv" ]]; then
             echo "Succesfully removed venv using admin privileges"
@@ -135,34 +137,37 @@ install_a1111() {
 
 brew_install() {
     echo "Installing $1..."
-    if brew list $1 &>/dev/null; then
-        echo "${1} is already installed"
+    if brew list "$1" &>/dev/null; then
+        echo "$1 is already installed"
     else
-        brew install $1 && echo "$1 is installed"
+        brew install "$1" && echo "$1 is installed"
     fi
 }
 
 apply_fixes() {
   if [[ "$torch" == "develop" ]]; then
-    echo "\nInstruct A1111 to use development version of torch..."
+    echo -e "\nInstruct A1111 to use development version of torch...\n"
     sed -i '' 's/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"\nexport TORCH_COMMAND="pip install --pre torch torchvision torchaudio --index-url https:\/\/download.pytorch.org\/whl\/nightly\/cpu"/' webui-user.sh
   else
-    echo "\nInstruct A1111 to use latest stable version of torch..."
+    echo -e "\nInstruct A1111 to use latest stable version of torch...\n"
     sed -i '' 's/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"\nexport TORCH_COMMAND="pip install torch torchvision torchaudio"/' webui-user.sh
   fi
-  if [[ "$fix" == "all" ]]; then
-    echo "Add recommended command line parameters..."
-    sed -i '' 's/#export COMMANDLINE_ARGS=""/#export COMMANDLINE_ARGS=""\nexport COMMANDLINE_ARGS="--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --medvram-sdxl --use-cpu interrogate"/' webui-user.sh
-  fi
   if [[ "$fix" == "all" || "$fix" == "errors" ]]; then
+    # TODO: Remove deforum fix after merging of https://github.com/deforum-art/sd-webui-deforum/pull/952
+    echo "Fix contolnet and deforum requirements hell..."
+    sed -i '' 's/httpx==0.24.1/httpx==0.24.1\nprotobuf==3.20.3\ninsightface==0.7.3\nbasicsr==1.4.2/' requirements_versions.txt
     echo "Fix cannot convert a MPS Tensor to float64 dtype error..."
     sed -i '' "/^                    dtype = sd_param.dtype if sd_param is not None else param.dtype/,/^ *[^:]*:/s/module._parameters\[name\] = torch.nn.parameter.Parameter/if dtype == torch.float64 and device.type == 'mps':\n                      dtype = torch.float32\n                    module._parameters\[name\] = torch.nn.parameter.Parameter/" modules/sd_disable_initialization.py
+  fi
+  if [[ "$fix" == "all" ]]; then
+    echo -e "\nAdd recommended command line parameters..."
+    sed -i '' 's/#export COMMANDLINE_ARGS=""/#export COMMANDLINE_ARGS=""\nexport COMMANDLINE_ARGS="--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --medvram-sdxl --use-cpu interrogate"/' webui-user.sh
   fi
   show_modified
 }
 
 parase_parameters() {
-  usage() { echo "$0 usage:" && grep "[[:space:]].)\ #" $0 | sed 's/#//' | sed -r 's/([a-z])\) /[-\1/'; exit 0; }
+  usage() { echo "$0 usage:" && grep "[[:space:]].)\ #" "$0" | sed 's/#//' | sed -r 's/([a-z])\) /[-\1/'; exit 0; }
   #(( $# == 0 )) && usage
   while getopts ":hbt:f:d:" arg; do
     case $arg in
@@ -194,14 +199,16 @@ parase_parameters() {
         ;;
       h) #] display help
         usage
-        exit 0
+        ;;
+      *)  # unknown params handler
+        usage
         ;;
     esac
   done
 }
 
 show_modified() {
-  echo "\nList of modified files:"
+  echo -e "\nList of modified files:"
   git status | grep modified | sed 's/	modified: //'
 }
 
@@ -212,9 +219,9 @@ main() {
     exit 1
   fi  
 
-  echo "\n-----------------------------------\n"
-  echo " A1111-setup v$VERSION\n Copyright (c) $YEAR\n Aleksandar Milanovic (viking1304)\n"
-  echo "-----------------------------------\n"
+  echo -e "\n-----------------------------------\n"
+  echo -e " A1111-setup v$VERSION\n Copyright (c) $YEAR\n Aleksandar Milanovic (viking1304)\n"
+  echo -e "-----------------------------------\n"
 
   parase_parameters "$@"
 
@@ -246,8 +253,8 @@ main() {
   apply_fixes
 
   # run webui
-  echo "\n----------------------------------------------------------------\n"
-  echo "\nLaunching A1111..."
+  echo -e "\n----------------------------------------------------------------\n"
+  echo -e "\nLaunching A1111..."
   ./webui.sh
 
   echo ""
