@@ -1,13 +1,13 @@
 # a1111-setup
-Simple Automatic1111 install script for Mac
+**Simple and easy way to install Automatic1111 WebUI on Mac**
 
-By default it will install A1111 in `stable-diffusion-webui` inside your home directory, but you can change the location if you want.
+By default, this script will install A1111 in  `stable-diffusion-webui` inside your home directory, but you can change the location if you want.
 
-Script will apply some recommended fixes and install required libraries. If there is already an installation in that folder, script will purge pip cache, remove venv, and force using of latest version of A1111. New venv will be created and you should be able to use A1111 on your Mac without any problems.
+The script will apply some recommended fixes and install the required libraries. If there is already an installation in that folder, the script will purge the pip cache, remove venv, and force using the latest version of A1111. A new venv will be created, and you should be able to use A1111 on your Mac without any problems.
 
-Simply run `sh a1111-setup.sh` or `chmod 755 a1111-setup.sh && ./a1111-setup.sh`. Wait a few minutes (depending on your computer and internet speed) until you see webui opened in your default browser.
+Simply run `bash a1111-setup.sh` or `chmod 755 a1111-setup.sh && ./a1111-setup.sh`. Wait a few minutes (depending on your computer and internet speed) until you see WebUI opened in your default browser.
 
-I have added a few command line parameters:
+Command line parameters:
 
 ```
       [-t stable|develop] stable or develop version of PyTorch
@@ -17,17 +17,17 @@ I have added a few command line parameters:
       [-h] display help
 ```
 
-New stable release of [PyTorch 2.1.2 is released](https://github.com/pytorch/pytorch/releases/tag/v2.1.2), and that is now a recommended version for Macs since it has some MPS(metal) and AArch64(silicon) fixes. This version will be installed by default. It is still posible to use development version using `-t develop` option.
+[PyTorch 2.1.2](https://github.com/pytorch/pytorch/releases/tag/v2.1.2) is the latest stable release, and it is now a recommended version for Macs since it has some MPS (metal) and AArch64 (silicon) fixes. This version will be installed by default. It is still possible to use the development version using the `-t develop` option.
 
-By default only errors will be fixed, but you can also aplly command line param tweak using `-f all`. This option was added since some Macs with spefic hardware are not working properly with command paramaters that works the best on most Macs.
+Only errors will be fixed by default, but you can also apply command line param tweak using `-f all`. Based on my tests, those parameters give a better and faster performance of A1111 WebUI than those provided by the A1111 team.
 
-Use option `-d` to specify the destination folder for A1111 installation or folder where A1111 is currently installed.
+Use option `-d` to specify the destination folder for A1111 installation or the folder where A1111 is currently installed.
 
-Since some people might not want to update brew, update is disabled by default, but you can update brew using `-b` option.
+Since some people might not want to update their installation of Homebrew, the update is disabled by default, but you can update brew using the `-b` option.
 
-**Additonal Notes**
+**Additional Notes**
 
-In some cases, default command line parameters provided by the A1111 team are not the best choice, and in some very rare cases, they do not work.
+In some extremely rare cases, default command line parameters provided by the A1111 team might not work correctly, for example, with some Macs with eGPU.
 
 You can try and see which of the command line parameters below works the best for you.
 
@@ -41,7 +41,12 @@ My recommendation for most Macs:
 export COMMANDLINE_ARGS="--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --medvram-sdxl --use-cpu interrogate"
 ```
 
-For special cases when `--no-half-vae` produce only noise:
+My recommendation for Macs with 36GB or more RAM:
+```
+export COMMANDLINE_ARGS="--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --use-cpu interrogate"
+```
+
+In some extremely rare cases, WebUI might produce only noise with   `--no-half-vae`. *I have never noticed that, but some people with external GPUs and two nonstandard AMD GPUs had that problem.*
 ```
 export COMMANDLINE_ARGS="--skip-torch-cuda-test --upcast-sampling --no-half --use-cpu interrogate"
 export COMMANDLINE_ARGS="--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half --medvram-sdxl"
@@ -55,4 +60,6 @@ export COMMANDLINE_ARGS="--skip-torch-cuda-test --opt-split-attention-v1 --upcas
 export COMMANDLINE_ARGS="--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --medvram"
 ```
 
-*All comments and sugestions are wellcome*
+*All comments and suggestions are welcome*
+
+3 min read
