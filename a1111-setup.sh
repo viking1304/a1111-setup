@@ -12,9 +12,9 @@
 # Bugs: ---
 # Notes: ---
 # Author: Aleksandar Milanovic (viking1304)
-# Version: 0.0.6
+# Version: 0.0.7
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/03/06 22:21:41
+# Last modified: 2024/03/08 11:18:44
 
 # Copyright (c) 2023 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -37,7 +37,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-readonly VERSION='0.0.6'
+readonly VERSION='0.0.7'
 readonly YEAR='2024'
 
 # install stable version of PyTorch and only fix errors by default
@@ -144,18 +144,20 @@ brew_install() {
     fi
 }
 
-apply_fixes() {
+set_torch_version(){
   if [[ "$torch" == "develop" ]]; then
-    echo -e "\nInstruct A1111 to use development version of torch...\n"
+    echo -e "\nInstruct A1111 to use development version of torch..."
     sed -i '' 's/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"\nexport TORCH_COMMAND="pip install --pre torch torchvision torchaudio --index-url https:\/\/download.pytorch.org\/whl\/nightly\/cpu"/' webui-user.sh
   else
-    echo -e "\nInstruct A1111 to use latest stable version of torch...\n"
+    echo -e "\nInstruct A1111 to use latest stable version of torch..."
     sed -i '' 's/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"\nexport TORCH_COMMAND="pip install torch torchvision torchaudio"/' webui-user.sh
   fi
+}
+
+apply_fixes() {
   if [[ "$fix" == "all" || "$fix" == "errors" ]]; then
-    # TODO: Remove deforum fix after merging of https://github.com/deforum-art/sd-webui-deforum/pull/952
-    echo "Fix contolnet and deforum requirements hell..."
-    sed -i '' 's/httpx==0.24.1/httpx==0.24.1\nprotobuf==3.20.3\ninsightface==0.7.3\nbasicsr==1.4.2/' requirements_versions.txt
+    echo -e "\nFix Contolnet requirements hell..."
+    sed -i '' 's/httpx==0.24.1/httpx==0.24.1\nprotobuf==3.20.3\ninsightface==0.7.3/' requirements_versions.txt
     echo "Fix cannot convert a MPS Tensor to float64 dtype error..."
     sed -i '' "/^                    dtype = sd_param.dtype if sd_param is not None else param.dtype/,/^ *[^:]*:/s/module._parameters\[name\] = torch.nn.parameter.Parameter/if dtype == torch.float64 and device.type == 'mps':\n                      dtype = torch.float32\n                    module._parameters\[name\] = torch.nn.parameter.Parameter/" modules/sd_disable_initialization.py
   fi
@@ -248,7 +250,10 @@ main() {
 
   # (re)intall a1111
   install_a1111
-  
+
+  # set torch version
+  set_torch_version
+
   # apply some fixes
   apply_fixes
 
