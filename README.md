@@ -17,7 +17,7 @@ Command line parameters:
       [-h] display help
 ```
 
-[PyTorch 2.1.2](https://github.com/pytorch/pytorch/releases/tag/v2.1.2) is the latest stable release, and it is now a recommended version for Macs since it has some MPS (metal) and AArch64 (silicon) fixes. This version will be installed by default. It is still possible to use the development version using the `-t develop` option.
+The [latest stable release](https://github.com/pytorch/pytorch/releases) of PyTorch will be installed by default, which is now recommended for Macs. It is still possible to use the development version using the `-t develop` option, but it is not necessary anymore.
 
 Only errors will be fixed by default, but you can also apply command line param tweak using `-f all`. Based on my tests, those parameters give a better and faster performance of A1111 WebUI than those provided by the A1111 team.
 
