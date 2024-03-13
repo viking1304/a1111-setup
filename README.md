@@ -1,5 +1,5 @@
 # a1111-setup
-**Simple and easy way to install Automatic1111 WebUI on Mac**
+**Simple and easy way to install Automatic1111 WebUI or Forge on Mac**
 
 By default, this script will install A1111 in  `stable-diffusion-webui` inside your home directory, but you can change the location if you want.
 
@@ -13,6 +13,7 @@ Command line parameters:
       [-t stable|develop] stable or develop version of PyTorch
       [-f all|errors|none] apply all fixes, only fixes for errors or none
       [-d folder_name] specify the destination folder for A1111 installation
+      [-o a1111|forge] install A1111 or Forge 
       [-b] update Homebrew
       [-h] display help
 ```
@@ -22,6 +23,8 @@ The [latest stable release](https://github.com/pytorch/pytorch/releases) of PyTo
 Only errors will be fixed by default, but you can also apply command line param tweak using `-f all`. Based on my tests, those parameters give a better and faster performance of A1111 WebUI than those provided by the A1111 team.
 
 Use option `-d` to specify the destination folder for A1111 installation or the folder where A1111 is currently installed.
+
+Use option `-o` to specify which webui to install. You can choose between A1111 and Forge.
 
 Since some people might not want to update their installation of Homebrew, the update is disabled by default, but you can update brew using the `-b` option.
 

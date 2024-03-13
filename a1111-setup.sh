@@ -4,17 +4,16 @@
 #
 # Usage: a1111-setup.sh
 #
-# Description: Simple A1111 install script for Mac.
-# It will install A1111 in stable-diffusion-webui inside your home directory.
+# Description: Simple and easy way to install Automatic1111 WebUI or Forge on Mac
 #
 # Options: ---
 # Requirements: MacOS
 # Bugs: ---
 # Notes: ---
 # Author: Aleksandar Milanovic (viking1304)
-# Version: 0.0.7
+# Version: 0.0.8
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/03/08 11:18:44
+# Last modified: 2024/03/13 20:13:04
 
 # Copyright (c) 2023 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -37,15 +36,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-readonly VERSION='0.0.7'
+readonly VERSION='0.0.8'
 readonly YEAR='2024'
 
 # install stable version of PyTorch and only fix errors by default
 update_brew=false
 torch="stable"
 fix="errors"
-df="${HOME}/stable-diffusion-webui"
-repo="https://github.com/AUTOMATIC1111/stable-diffusion-webui.git"
+fork="a1111"
+
+# webui repos and default destination folders
+a1111_repo="https://github.com/AUTOMATIC1111/stable-diffusion-webui.git"
+a1111_df="${HOME}/stable-diffusion-webui"
+forge_repo="https://github.com/lllyasviel/stable-diffusion-webui-forge.git"
+forge_df="${HOME}/stable-diffusion-webui-forge"
 
 # Install Homebrew
 install_homebrew() {
@@ -75,10 +79,10 @@ detect_cpu() {
   fi
 }
 
-install_a1111() {
+install_webui() {
   # check if destination folder exists
   if [[ ! -d "$df" ]]; then
-    echo -e "\nInstalling A1111 into $df\n"
+    echo -e "\nInstalling webui into $df\n"
     # clone automatic1111
 
     if ! git clone "$repo" "$df"; then
@@ -89,13 +93,13 @@ install_a1111() {
     fi
   else
     if [[ "$(ls -A "$df")" ]]; then
-      echo -e "\nUpdating A1111 installation in $df\n"
+      echo -e "\nUpdating webui installation in $df\n"
     else
-      echo -e "\nInstalling A1111 into $df\n"
+      echo -e "\nInstalling webui into $df\n"
     fi
     # shellcheck disable=SC2164
     cd "$df"
-    # force A1111 upgrade
+    # force webui upgrade
     if [[ -d ".git" ]]; then
       git reset --hard origin/master
     else
@@ -107,7 +111,7 @@ install_a1111() {
     fi
     git pull
     if [[ "$(git status | grep modified)" != "" ]]; then
-      echo -e "\nERROR: some A1111 files are still modifed"
+      echo -e "\nERROR: some webui files are still modifed"
       show_modified
       exit 1
     fi
@@ -147,10 +151,10 @@ brew_install() {
 
 set_torch_version(){
   if [[ "$torch" == "develop" ]]; then
-    echo -e "\nInstruct A1111 to use development version of torch..."
+    echo -e "\nInstruct webui to use development version of torch..."
     sed -i '' 's/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"\nexport TORCH_COMMAND="pip install --pre torch torchvision torchaudio --index-url https:\/\/download.pytorch.org\/whl\/nightly\/cpu"/' webui-user.sh
   else
-    echo -e "\nInstruct A1111 to use latest stable version of torch..."
+    echo -e "\nInstruct webui to use latest stable version of torch..."
     sed -i '' 's/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"\nexport TORCH_COMMAND="pip install torch torchvision torchaudio"/' webui-user.sh
   fi
 }
@@ -172,7 +176,7 @@ apply_fixes() {
 parase_parameters() {
   usage() { echo "$0 usage:" && grep "[[:space:]].)\ #" "$0" | sed 's/#//' | sed -r 's/([a-z])\) /[-\1/'; exit 0; }
   #(( $# == 0 )) && usage
-  while getopts ":hbt:f:d:" arg; do
+  while getopts ":hbt:f:d:o:" arg; do
     case $arg in
       t) # stable|develop] stable or develop version of PyTorch
         torch=${OPTARG}
@@ -188,7 +192,7 @@ parase_parameters() {
           exit 1
         fi
         ;;
-      d) # folder_name] specify the destination folder for A1111 installation
+      d) # folder_name] specify the destination folder for webui installation
         df=${OPTARG}
         # treat destination as subfolder of home directory, unless it starts with slash
         if [[ "${df:0:1}" != '/' ]]; then
@@ -196,6 +200,13 @@ parase_parameters() {
         fi
         # remove trailing slash
         df=${df%/}
+        ;;
+      o) # a1111|forge] install A1111 or Forge
+        fork=${OPTARG}
+        if [[ "$fork" != "forge"  && "$fork" != "a1111" ]]; then
+          echo "parameter -o must be a1111 or forge"
+          exit 1
+        fi
         ;;
       b) #] update Homebrew
         update_brew=true
@@ -243,6 +254,23 @@ main() {
   # Keep-alive by updating existing 'sudo' time stamp until script has finished
   while true; do access_check; sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
+  # use a1111 repo by default
+  repo="$a1111_repo"
+
+  # set the repo based on fork
+  if [[ "$fork" == "forge" ]]; then
+    repo="$forge_repo"
+  fi
+
+  # if destination folder is not set use the default location based on fork
+  if [[ -z "$df" ]]; then
+    if [[ "$fork" == "forge" ]]; then
+      df="$forge_df"
+    else
+      df="$a1111_df"
+    fi
+  fi
+
   # Install Homebrew
   install_homebrew
 
@@ -258,8 +286,8 @@ main() {
   brew_install git 
   brew_install wget
 
-  # (re)intall a1111
-  install_a1111
+  # (re)install webui
+  install_webui
 
   # set torch version
   set_torch_version
@@ -269,7 +297,7 @@ main() {
 
   # run webui
   echo -e "\n----------------------------------------------------------------\n"
-  echo -e "\nLaunching A1111..."
+  echo -e "\nLaunching webui..."
   ./webui.sh
 
   echo ""
