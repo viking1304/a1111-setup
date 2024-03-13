@@ -45,6 +45,7 @@ update_brew=false
 torch="stable"
 fix="errors"
 df="${HOME}/stable-diffusion-webui"
+repo="https://github.com/AUTOMATIC1111/stable-diffusion-webui.git"
 
 # Install Homebrew
 install_homebrew() {
@@ -80,7 +81,7 @@ install_a1111() {
     echo -e "\nInstalling A1111 into $df\n"
     # clone automatic1111
 
-    if ! git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui "$df"; then
+    if ! git clone "$repo" "$df"; then
       exit 1
     else
       # shellcheck disable=SC2164
@@ -99,7 +100,7 @@ install_a1111() {
       git reset --hard origin/master
     else
       git init
-      git remote add origin https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
+      git remote add origin "$repo"
       git fetch --all
       git reset --hard origin/master
       git branch --set-upstream-to=origin/master master
@@ -117,15 +118,15 @@ install_a1111() {
     fi
     # remove venv
     if [[ -d "venv" ]]; then  
-      echo -e "\nTring to remove venv..."
+      echo -e "\nTrying to remove venv..."
       rm -rf venv 2> /dev/null
         if [[ ! -d "venv" ]]; then
-          echo "Succesfully removed venv"
+          echo "Successfully removed venv"
         else
-          echo -e "Could not remove venv\nTring to remove venv using admin privileges..."
+          echo -e "Could not remove venv\nTrying to remove venv using admin privileges..."
           sudo rm -rf venv 2> /dev/null
           if [[ ! -d "venv" ]]; then
-            echo "Succesfully removed venv using admin privileges"
+            echo "Successfully removed venv using admin privileges"
           else
             echo "ERROR: could not remove venv even using admin privileges"
             exit 1
