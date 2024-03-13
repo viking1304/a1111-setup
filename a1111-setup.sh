@@ -220,7 +220,16 @@ main() {
   if [[ "$(uname -s)" != "Darwin" ]]; then
     echo "This script can only be used on macOS!"
     exit 1
-  fi  
+  fi
+
+  interpreter=$(ps h -p $$ -o args='' | cut -f1 -d' ')
+  # Exit script if not run with bash
+  if [[ "$interpreter" != "bash" ]]; then
+    echo "This script requires bash to work properly!"
+    exit 1
+  fi
+
+  source_dir=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
 
   echo -e "\n-----------------------------------\n"
   echo -e " A1111-setup v$VERSION\n Copyright (c) $YEAR\n Aleksandar Milanovic (viking1304)\n"
