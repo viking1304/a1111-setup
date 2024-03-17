@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.0.9
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/03/17 17:36:39
+# Last modified: 2024/03/17 17:43:37
 
 # Copyright (c) 2023 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -173,7 +173,12 @@ apply_fixes() {
   fi
   if [[ "$fix" == "all" ]]; then
     echo -e "\nAdd recommended command line parameters..."
-    sed -i '' 's/#export COMMANDLINE_ARGS=""/#export COMMANDLINE_ARGS=""\nexport COMMANDLINE_ARGS="--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --medvram-sdxl --use-cpu interrogate"/' webui-user.sh
+    if [[ "$fork" == "forge" ]]; then
+      sed -i '' 's/#export COMMANDLINE_ARGS=""/#export COMMANDLINE_ARGS=""\nexport COMMANDLINE_ARGS="--skip-torch-cuda-test --attention-pytorch --all-in-fp16 --vae-in-fp16 --always-high-vram --use-cpu interrogate"/' webui-user.sh
+    fi
+    if [[ "$fork" == "a1111" ]]; then
+      sed -i '' 's/#export COMMANDLINE_ARGS=""/#export COMMANDLINE_ARGS=""\nexport COMMANDLINE_ARGS="--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --medvram-sdxl --use-cpu interrogate"/' webui-user.sh
+    fi
   fi
   show_modified
 }
