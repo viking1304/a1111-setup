@@ -11,9 +11,9 @@
 # Bugs: ---
 # Notes: ---
 # Author: Aleksandar Milanovic (viking1304)
-# Version: 0.0.8
+# Version: 0.0.9
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/03/13 20:13:04
+# Last modified: 2024/03/17 17:36:39
 
 # Copyright (c) 2023 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -36,12 +36,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-readonly VERSION='0.0.8'
+readonly VERSION='0.0.9'
 readonly YEAR='2024'
 
-# install stable version of PyTorch and only fix errors by default
+# install recommended version of PyTorch and only fix errors by default
 update_brew=false
-torch="stable"
+torch="recommended"
 fix="errors"
 fork="a1111"
 
@@ -152,10 +152,15 @@ brew_install() {
 set_torch_version(){
   if [[ "$torch" == "develop" ]]; then
     echo -e "\nInstruct webui to use development version of torch..."
-    sed -i '' 's/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"\nexport TORCH_COMMAND="pip install --pre torch torchvision torchaudio --index-url https:\/\/download.pytorch.org\/whl\/nightly\/cpu"/' webui-user.sh
-  else
+    sed -i '' 's/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"\nexport TORCH_COMMAND="pip install --pre torch torchvision --index-url https:\/\/download.pytorch.org\/whl\/nightly\/cpu"/' webui-user.sh
+  fi
+  if [[ "$torch" == "stable" ]]; then
     echo -e "\nInstruct webui to use latest stable version of torch..."
-    sed -i '' 's/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"\nexport TORCH_COMMAND="pip install torch torchvision torchaudio"/' webui-user.sh
+    sed -i '' 's/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"\nexport TORCH_COMMAND="pip install torch torchvision"/' webui-user.sh
+  fi
+  if [[ "$torch" == "recommended" ]]; then
+    echo -e "\nInstruct webui to use torch 2.1.2..."
+    sed -i '' 's/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"\nexport TORCH_COMMAND="pip install torch==2.1.2 torchvision==0.16.2"/' webui-user.sh
   fi
 }
 
@@ -178,10 +183,10 @@ parase_parameters() {
   #(( $# == 0 )) && usage
   while getopts ":hbt:f:d:o:" arg; do
     case $arg in
-      t) # stable|develop] stable or develop version of PyTorch
+      t) # recommended|stable|develop] recommended, stable or develop version of PyTorch
         torch=${OPTARG}
-        if [[ "$torch" != "stable"  && "$torch" != "develop" ]]; then
-          echo "parameter -t must either be stable or develop"
+        if [[ "$torch" != "recommended" && "$torch" != "stable" && "$torch" != "develop" ]]; then
+          echo "parameter -t must be recommended, stable or develop"
           exit 1
         fi
         ;;
