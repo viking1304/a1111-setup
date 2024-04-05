@@ -11,9 +11,9 @@
 # Bugs: ---
 # Notes: ---
 # Author: Aleksandar Milanovic (viking1304)
-# Version: 0.0.9
+# Version: 0.1.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/03/17 17:43:37
+# Last modified: 2024/04/05 21:48:08
 
 # Copyright (c) 2023 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -36,7 +36,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-readonly VERSION='0.0.9'
+readonly VERSION='0.1.0'
 readonly YEAR='2024'
 
 # install recommended version of PyTorch and only fix errors by default
@@ -150,7 +150,7 @@ brew_install() {
 }
 
 set_torch_version(){
-  if [[ "$torch" == "develop" ]]; then
+  if [[ "$torch" == "develop" || "$torch" == "recommended" ]]; then
     echo -e "\nInstruct webui to use development version of torch..."
     sed -i '' 's/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"\nexport TORCH_COMMAND="pip install --pre torch torchvision --index-url https:\/\/download.pytorch.org\/whl\/nightly\/cpu"/' webui-user.sh
   fi
@@ -158,26 +158,24 @@ set_torch_version(){
     echo -e "\nInstruct webui to use latest stable version of torch..."
     sed -i '' 's/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"\nexport TORCH_COMMAND="pip install torch torchvision"/' webui-user.sh
   fi
-  if [[ "$torch" == "recommended" ]]; then
-    echo -e "\nInstruct webui to use torch 2.1.2..."
-    sed -i '' 's/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"/#export TORCH_COMMAND="pip install torch==1.12.1+cu113 --extra-index-url https:\/\/download.pytorch.org\/whl\/cu113"\nexport TORCH_COMMAND="pip install torch==2.1.2 torchvision==0.16.2"/' webui-user.sh
-  fi
 }
 
 apply_fixes() {
   if [[ "$fix" == "all" || "$fix" == "errors" ]]; then
-    echo -e "\nFix Contolnet requirements hell..."
-    sed -i '' 's/httpx==0.24.1/httpx==0.24.1\nprotobuf==3.20.3\ninsightface==0.7.3/' requirements_versions.txt
+    if [[ "$torch" == "stable" ]]; then
+      echo -e "\nFix Contolnet requirements hell..."
+      sed -i '' 's/httpx==0.24.1/httpx==0.24.1\nprotobuf==3.20.3\ninsightface==0.7.3/' requirements_versions.txt
+    fi
     echo "Fix cannot convert a MPS Tensor to float64 dtype error..."
     sed -i '' "/^                    dtype = sd_param.dtype if sd_param is not None else param.dtype/,/^ *[^:]*:/s/module._parameters\[name\] = torch.nn.parameter.Parameter/if dtype == torch.float64 and device.type == 'mps':\n                      dtype = torch.float32\n                    module._parameters\[name\] = torch.nn.parameter.Parameter/" modules/sd_disable_initialization.py
   fi
   if [[ "$fix" == "all" ]]; then
     echo -e "\nAdd recommended command line parameters..."
     if [[ "$fork" == "forge" ]]; then
-      sed -i '' 's/#export COMMANDLINE_ARGS=""/#export COMMANDLINE_ARGS=""\nexport COMMANDLINE_ARGS="--skip-torch-cuda-test --attention-pytorch --all-in-fp16 --vae-in-fp16 --always-high-vram --use-cpu interrogate"/' webui-user.sh
+      sed -i '' 's/#export COMMANDLINE_ARGS=""/#export COMMANDLINE_ARGS=""\nexport COMMANDLINE_ARGS="--skip-torch-cuda-test --attention-pytorch --all-in-fp16 --always-high-vram --use-cpu interrogate"/' webui-user.sh
     fi
     if [[ "$fork" == "a1111" ]]; then
-      sed -i '' 's/#export COMMANDLINE_ARGS=""/#export COMMANDLINE_ARGS=""\nexport COMMANDLINE_ARGS="--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --medvram-sdxl --use-cpu interrogate"/' webui-user.sh
+      sed -i '' 's/#export COMMANDLINE_ARGS=""/#export COMMANDLINE_ARGS=""\nexport COMMANDLINE_ARGS="--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --use-cpu interrogate"/' webui-user.sh
     fi
   fi
   show_modified
