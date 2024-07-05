@@ -146,8 +146,25 @@ dbg_msg() {
   msg_cn "$1: " "$2"
 }
 
+# display welcome message
+welcome_message() {
+  msg "Welcome to"
+  msg_c "     _        _     _            _ _  __  __           _                "
+  msg_c " ___| |_ __ _| |__ | | ___    __| (_)/ _|/ _|_   _ ___(_) ___  _ __     "
+  msg_c "/ __| __/ _\` | '_ \| |/ _ \  / _\` | | |_| |_| | | / __| |/ _ \| '_ \  "
+  msg_c "\__ \ || (_| | |_) | |  __/ | (_| | |  _|  _| |_| \__ \ | (_) | | | |   "
+  msg_c "|___/\__\__,_|_.__/|_|\___|  \__,_|_|_| |_|  \__,_|___/_|\___/|_| |_|   "
+  msg_br
+  msg_nc "                                            I N S T A L L E R  " "v${VERSION}"
+  msg_br
+  msg_nc_nb "Copyright " "(c) ${YEAR}"; msg_nc_nb " Aleksandar Milanovic (" "viking1304"; msg ")"
+  msg_br
+  msg_nc "https://" "github.com/viking1304/a111-setup"
+  msg_br
+}
+
 main() {
-  msg "v$VERSION"
+  welcome_message
 }
 
 main "$@"
