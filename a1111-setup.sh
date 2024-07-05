@@ -39,8 +39,115 @@
 readonly VERSION='0.2.0'
 readonly YEAR='2024'
 
+# available colors for console output
+# shellcheck disable=SC2034
+readonly green='\033[32m'
+# shellcheck disable=SC2034
+readonly red='\033[31m'
+# shellcheck disable=SC2034
+readonly yellow='\033[33m'
+# shellcheck disable=SC2034
+readonly blue='\033[34m'
+# shellcheck disable=SC2034
+readonly magenta='\033[35m'
+# shellcheck disable=SC2034
+readonly cyan='\033[36m'
+# shellcheck disable=SC2034
+readonly nc='\033[0m' # no color
+# default colors
+color='blue'
+warn_color='yellow'
+err_color='red'
+
+# basic message without a new line
+msg_nb() {
+  local text="$1"
+  local color_name='nc'
+
+  if [[ -n "$2" ]]; then
+    color_name="$2"
+  fi
+
+  # get color code from name
+  local color="${!color_name}"
+
+  # shellcheck disable=SC2059
+  printf "${color}${text}${nc}"
+}
+
+# basic message
+msg() {
+  msg_nb "$1\n" "$2"
+}
+
+# display blank line
+msg_br() {
+  msg ""
+}
+
+# colored message
+msg_c() {
+  msg "$1" "${color}"
+}
+
+# colored message without a new line
+msg_c_nb() {
+  msg_nb "$1" "${color}"
+}
+
+# only the first part of message is colored
+msg_cn() {
+  msg_c_nb "$1"; msg "$2"
+}
+
+# only the first part of message without a new line is colored
+msg_cn_nb() {
+  msg_c_nb "$1"; msg_nb "$2"
+}
+
+# only the second part of message is colored
+msg_nc() {
+  msg_nb "$1"; msg_c "$2"
+}
+
+# only the second part of message without a new line is colored
+msg_nc_nb() {
+  msg_nb "$1"; msg_c_nb "$2"
+}
+
+# warning message
+warn_msg() {
+  local warn_subject="$1"
+  local warn_msg="$2"
+
+  if [[ -z "$2" ]]; then
+    warn_subject="WARNING: "
+    warn_msg="$1"
+  fi
+
+  msg_nb "${warn_subject}" "${warn_color}"; msg "${warn_msg}"
+}
+
+# error message
+err_msg() {
+  local err_subject="$1"
+  local err_msg="$2"
+
+  if [[ -z "$2" ]]; then
+    err_subject="ERROR: "
+    err_msg="$1"
+  fi
+
+  msg_nb "${err_subject}" "${err_color}"; msg "${err_msg}"
+}
+
+# debug message
+dbg_msg() {
+  msg_cn "$1: " "$2"
+}
+
 main() {
-    echo "v$VERSION"
+  msg "v$VERSION"
 }
 
 main "$@"
