@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/06 23:13:25
+# Last modified: 2024/07/07 00:07:19
 
 # Copyright (c) 2023 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -58,6 +58,12 @@ readonly nc='\033[0m' # no color
 color='blue'
 warn_color='yellow'
 err_color='red'
+
+# repositories and default destination folders
+readonly a1111_repo="https://github.com/AUTOMATIC1111/stable-diffusion-webui.git"
+readonly a1111_dest_dir="${HOME}/stable-diffusion-webui"
+readonly forge_repo="https://github.com/lllyasviel/stable-diffusion-webui-forge.git"
+readonly forge_dest_dir="${HOME}/stable-diffusion-webui-forge"
 
 # basic message without a new line
 msg_nb() {
@@ -205,17 +211,35 @@ parase_command_line_arguments() {
 
     display_help_header
     display_help_item "-h" "display help"
+    display_help_item "-d folder_name" "specify the destination folder for webui installation"
+    display_help_item "-o a1111|forge" "install A1111 or Forge"
     display_help_item "-c red|green|yellow|blue|magenta|cyan|no-color" "use specified color for messages"
     msg_br
   }
 
   # parse command line arguments using getopts
-  while getopts ':hc:' opt; do
+  while getopts ':hd:o:c:' opt; do
     case $opt in
       h)
         # just set the flag, because the user might want to use a custom color
         help=true
         ;;
+        d)
+          # ensure that destination does not start with dot
+          if [[ "${OPTARG}" == .* ]]; then
+            err_msg "Do not install webui under a directory with leading dot (.)"
+            msg_cn "MORE INFO: " "https://github.com/AUTOMATIC1111/stable-diffusion-webui/issues/13292"
+            exit 1
+          fi
+          dest_dir="${OPTARG}"
+          ;;
+        o)
+          if [[ "${OPTARG}" != "forge"  && "${OPTARG}" != "a1111" ]]; then
+            err_msg "Valid arguments for the parameter ${ec}-o${nc} are a1111 and forge"
+            exit 1
+          fi
+          fork="${OPTARG}"
+          ;;
       c)
         # handle invalid colors
         if [[ "${OPTARG}" != "red" && "${OPTARG}" != "green" && "${OPTARG}" != "yellow" &&
@@ -247,6 +271,34 @@ parase_command_line_arguments() {
   fi
 }
 
+# set the repository, branch and destination folder
+set_repo_and_dest_dir() {
+  if [[ "$fork" == "a1111" ]]; then
+    repo="$a1111_repo"
+    branch="master"
+  else
+    repo="$forge_repo"
+    branch="main"
+  fi
+
+  # treat destination folder as subfolder of home directory, unless it starts with slash
+  if [[ "${dest_dir:0:1}" != '/' ]]; then
+    dest_dir="${HOME}/${dest_dir}"
+  fi
+  # remove trailing slash
+  dest_dir="${dest_dir%/}"
+
+  # if destination folder is not set use the default location based on fork
+  if [[ -z "$dest_dir" ]]; then
+    if [[ "$fork" == "a1111" ]]; then
+      dest_dir="$a1111_dest_dir"
+    else
+      dest_dir="$forge_dest_dir"
+    fi
+  fi
+
+}
+
 main() {
   # display blank line
   msg_br
@@ -262,6 +314,9 @@ main() {
 
   # show welcome message
   welcome_message
+
+  # set the repository, branch and destination folder
+  set_repo_and_dest_dir
 
   # check if sudo requires a password and ask user to enter it if necessary
   is_password_required
