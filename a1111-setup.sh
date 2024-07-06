@@ -67,6 +67,9 @@ readonly a1111_dest_dir="${HOME}/stable-diffusion-webui"
 readonly forge_repo="https://github.com/lllyasviel/stable-diffusion-webui-forge.git"
 readonly forge_dest_dir="${HOME}/stable-diffusion-webui-forge"
 
+# install A1111 by default
+fork="a1111"
+
 # basic message without a new line
 msg_nb() {
   local text="$1"
