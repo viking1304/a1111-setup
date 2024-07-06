@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/04/05 21:48:08
+# Last modified: 2024/07/06 21:53:29
 
 # Copyright (c) 2023 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -163,8 +163,44 @@ welcome_message() {
   msg_br
 }
 
+# check if sudo requires a password and ask user to enter it if necessary
+is_password_required () {
+  # check if sudo requires a password
+  if ! sudo -n true 2>/dev/null; then
+    # show custom password prompt
+    msg_nc_nb "Please enter password for user " "$USER"; msg_nb ": "
+    # ask for user password
+    sudo -v -p ""
+    msg_br
+  fi
+}
+
+# keep-alive by updating existing 'sudo' time stamp until script has finished
+keep_alive() {
+  while true; do
+    sudo -n true  # refresh sudo timestamp without prompt
+    sleep 60      # sleep for 60 seconds
+    kill -0 "$$" || exit  # check if script is still running; exit if not
+  done 2>/dev/null &
+}
 main() {
+  # add blank line
+  msg_br
+
+  # exit script if not run on macOS
+  if [[ "$(uname -s)" != "Darwin" ]]; then
+    err_msg "This script can only be used on macOS!"
+    exit 1
+  fi
+
+  # show welcome message
   welcome_message
+
+  # check if sudo requires a password and ask user to enter it if necessary
+  is_password_required
+
+  # keep-alive by updating existing 'sudo' time stamp until script has finished
+  keep_alive
 }
 
 main "$@"
