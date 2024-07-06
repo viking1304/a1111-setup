@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/07 00:07:19
+# Last modified: 2024/07/07 01:00:50
 
 # Copyright (c) 2023 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -38,6 +38,8 @@
 
 readonly VERSION='0.2.0'
 readonly YEAR='2024'
+
+declare debug
 
 # available colors for console output
 # shellcheck disable=SC2034
@@ -147,9 +149,14 @@ err_msg() {
   msg_nb "${err_subject}" "${err_color}"; msg "${err_msg}"
 }
 
+# debug header
+dbg_hdr () {
+  msg "$1" "${warn_color}"
+}
+
 # debug message
 dbg_msg() {
-  msg_cn "$1: " "$2"
+  msg_cn "$1:" " $2"
 }
 
 # display welcome message
@@ -299,6 +306,25 @@ set_repo_and_dest_dir() {
 
 }
 
+# display debug info
+debug_info() {
+  msg_br
+  dbg_hdr "SCRIPT"
+  dbg_msg "script" "${BASH_SOURCE[0]}"
+  dbg_msg "version" "${VERSION}"
+  dbg_msg "year" "${YEAR}"
+  msg_br
+  dbg_hdr "INSTALLATION"
+  dbg_msg "fork" "${fork}"
+  dbg_msg "repo" "${repo}"
+  dbg_msg "master" "${branch}"
+  dbg_msg "destination_dir" "${dest_dir}"
+  msg_br
+  dbg_hdr "ADDITIONAL INFO"
+  dbg_msg "color" "${color}"
+  msg_br
+}
+
 main() {
   # display blank line
   msg_br
@@ -318,11 +344,19 @@ main() {
   # set the repository, branch and destination folder
   set_repo_and_dest_dir
 
+  # show debug info
+  if [[ "${debug}" == "true" ]]; then
+    debug_info
+  fi
+
   # check if sudo requires a password and ask user to enter it if necessary
   is_password_required
 
   # keep-alive by updating existing 'sudo' time stamp until script has finished
   keep_alive
 }
+
+# set debug mode
+# debug="true"
 
 main "$@"
