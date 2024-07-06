@@ -217,24 +217,24 @@ parase_command_line_arguments() {
         help=true
         ;;
       c)
-        # hadle invalid colors
+        # handle invalid colors
         if [[ "${OPTARG}" != "red" && "${OPTARG}" != "green" && "${OPTARG}" != "yellow" &&
               "${OPTARG}" != "blue" && "${OPTARG}" != "magenta" && "${OPTARG}" != "cyan" &&
               "${OPTARG}" != "no-color"
         ]]; then
-          err_msg "parameter ${ec}-c${nc} must be red, green, yellow, blue, magenta, cyan, or no-color"
+          err_msg "Valid arguments for the parameter ${ec}-c${nc} are red, green, yellow, blue, magenta, cyan and no-color"
           exit 1
         fi
         color="${OPTARG}"
         ;;
       \?)
         # handle invalid options
-        err_msg "invalid option ${ec}-${OPTARG}${nc}"
+        err_msg "Invalid option ${ec}-${OPTARG}${nc}"
         exit 1
         ;;
       :)
         # handle missing arguments
-        err_msg "option ${ec}-${OPTARG}${nc} requires an argument"
+        err_msg "Option ${ec}-${OPTARG}${nc} requires an argument"
         exit 1
         ;;
     esac
