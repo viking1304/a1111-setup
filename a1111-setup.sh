@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/06 21:53:29
+# Last modified: 2024/07/06 23:13:25
 
 # Copyright (c) 2023 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -183,8 +183,72 @@ keep_alive() {
     kill -0 "$$" || exit  # check if script is still running; exit if not
   done 2>/dev/null &
 }
+
+# parse command line arguments
+parase_command_line_arguments() {
+  # convert error color to color code
+  local ec="${!err_color}"
+  # postpone displaying the help until all arguments are parsed
+  local help=false
+
+  # display help
+  display_help() {
+    display_help_header () {
+      msg_cn "$0" " usage:"
+    }
+
+    display_help_item () {
+      local item="$1"
+      local description="$2"
+      msg_nb "        ["; msg_cn "${item}" "] ${description}"
+    }
+
+    display_help_header
+    display_help_item "-h" "display help"
+    display_help_item "-c red|green|yellow|blue|magenta|cyan|no-color" "use specified color for messages"
+    msg_br
+  }
+
+  # parse command line arguments using getopts
+  while getopts ':hc:' opt; do
+    case $opt in
+      h)
+        # just set the flag, because the user might want to use a custom color
+        help=true
+        ;;
+      c)
+        # hadle invalid colors
+        if [[ "${OPTARG}" != "red" && "${OPTARG}" != "green" && "${OPTARG}" != "yellow" &&
+              "${OPTARG}" != "blue" && "${OPTARG}" != "magenta" && "${OPTARG}" != "cyan" &&
+              "${OPTARG}" != "no-color"
+        ]]; then
+          err_msg "parameter ${ec}-c${nc} must be red, green, yellow, blue, magenta, cyan, or no-color"
+          exit 1
+        fi
+        color="${OPTARG}"
+        ;;
+      \?)
+        # handle invalid options
+        err_msg "invalid option ${ec}-${OPTARG}${nc}"
+        exit 1
+        ;;
+      :)
+        # handle missing arguments
+        err_msg "option ${ec}-${OPTARG}${nc} requires an argument"
+        exit 1
+        ;;
+    esac
+  done
+
+  # finally display help if the flag was set
+  if [[ "$help" == "true" ]]; then
+    display_help
+    exit 0
+  fi
+}
+
 main() {
-  # add blank line
+  # display blank line
   msg_br
 
   # exit script if not run on macOS
@@ -192,6 +256,9 @@ main() {
     err_msg "This script can only be used on macOS!"
     exit 1
   fi
+
+  # parse command line arguments
+  parase_command_line_arguments "$@"
 
   # show welcome message
   welcome_message
