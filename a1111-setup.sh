@@ -43,7 +43,7 @@ readonly YEAR='2024'
 declare debug
 declare ignore_vm
 declare dry_run
-vm='false'
+vm=false
 
 # available colors for console output
 # shellcheck disable=SC2034
@@ -189,9 +189,11 @@ is_password_required () {
   if ! sudo -n true 2>/dev/null; then
     # show custom password prompt
     msg_nc_nb "Please enter password for user " "$USER"; msg_nb ": "
-    if [[ "${dry_run}" != "true" ]]; then
+    if [[ "${dry_run}" != true ]]; then
       # ask for user password
       sudo -v -p ""
+    else
+      msg_br
     fi
     msg_br
   fi
@@ -299,8 +301,8 @@ detect_cpu_and_vm() {
     msg_nc "Running on " "ARM"
   fi
 
-  if [[ "${ignore_vm}" != "true" && "$(system_profiler SPHardwareDataType | grep -c "Identifier.*VirtualMac")" -eq 1 ]]; then
-    vm="true"
+  if [[ "${ignore_vm}" != true && "$(system_profiler SPHardwareDataType | grep -c "Identifier.*VirtualMac")" -eq 1 ]]; then
+    vm=true
     msg_br
     warn_msg "Running inside virtual machine"
   fi
@@ -381,7 +383,7 @@ main() {
   set_repo_and_dest_dir
 
   # show debug info
-  if [[ "${debug}" == "true" ]]; then
+  if [[ "${debug}" == true ]]; then
     debug_info
   fi
 
@@ -393,8 +395,8 @@ main() {
 }
 
 # set debug mode
-# debug="true"
-# ignore_vm="true"
-# dry_run="true"
+# debug=true
+# dry_run=true
+# ignore_vm=true
 
 main "$@"
