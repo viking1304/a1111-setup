@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/07 20:27:20
+# Last modified: 2024/07/07 20:36:03
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -391,6 +391,33 @@ install_homebrew() {
   fi
   msg_br
 }
+
+# install Homebrew package
+brew_install() {
+    msg_nc_nb "Installing " "$1"; msg "..."
+    if brew list "$1" &>/dev/null; then
+        msg "$1 is already installed"
+    else
+      if [[ "${dry_run}" != true ]]; then
+        brew install "$1" && msg "$1 is installed"
+      else
+        dbg_msg "dry_run" "brew install \"$1\""
+      fi
+    fi
+}
+
+ # install required packages
+install_required_packages() {
+  brew_install cmake
+  brew_install protobuf
+  brew_install rust
+  brew_install python@3.10
+  brew_install git
+  brew_install wget
+  msg_br
+}
+
+
 # display debug info
 debug_info() {
   dbg_hdr "SCRIPT"
@@ -449,6 +476,9 @@ main() {
 
   # install Homebrew
   install_homebrew
+
+  # install required packages
+  install_required_packages
 }
 
 # set debug mode
