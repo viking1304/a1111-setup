@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/07 01:00:50
+# Last modified: 2024/07/07 08:07:33
 
 # Copyright (c) 2023 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -39,7 +39,10 @@
 readonly VERSION='0.2.0'
 readonly YEAR='2024'
 
+# declare variables
 declare debug
+declare ignore_vm
+vm='false'
 
 # available colors for console output
 # shellcheck disable=SC2034
@@ -281,6 +284,27 @@ parase_command_line_arguments() {
   fi
 }
 
+# detect processor and virtual machine
+detect_cpu_and_vm() {
+  msg "Detecting processor..."
+
+  if [[ "$(sysctl -n machdep.cpu.brand_string)" =~ ^.*"Intel".*$ ]]; then
+    cpu="intel"
+    msg_nc "Running on " "Intel"
+  else
+    cpu="arm"
+    msg_nc "Running on " "ARM"
+  fi
+
+  if [[ "${ignore_vm}" != "true" && "$(system_profiler SPHardwareDataType | grep -c "Identifier.*VirtualMac")" -eq 1 ]]; then
+    vm="true"
+    msg_br
+    warn_msg "Running inside virtual machine"
+  fi
+
+  msg_br
+}
+
 # set the repository, branch and destination folder
 set_repo_and_dest_dir() {
   if [[ "$fork" == "a1111" ]]; then
@@ -311,11 +335,14 @@ set_repo_and_dest_dir() {
 
 # display debug info
 debug_info() {
-  msg_br
   dbg_hdr "SCRIPT"
   dbg_msg "script" "${BASH_SOURCE[0]}"
   dbg_msg "version" "${VERSION}"
   dbg_msg "year" "${YEAR}"
+  msg_br
+  dbg_hdr "CPU AND VM"
+  dbg_msg "cpu" "${cpu}"
+  dbg_msg "vm" "${vm}"
   msg_br
   dbg_hdr "INSTALLATION"
   dbg_msg "fork" "${fork}"
@@ -344,6 +371,9 @@ main() {
   # show welcome message
   welcome_message
 
+  # detect CPU and VM
+  detect_cpu_and_vm
+
   # set the repository, branch and destination folder
   set_repo_and_dest_dir
 
@@ -361,5 +391,6 @@ main() {
 
 # set debug mode
 # debug="true"
+# ignore_vm="true"
 
 main "$@"
