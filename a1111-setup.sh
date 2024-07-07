@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/07 08:07:33
+# Last modified: 2024/07/07 19:15:30
 
 # Copyright (c) 2023 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -42,6 +42,7 @@ readonly YEAR='2024'
 # declare variables
 declare debug
 declare ignore_vm
+declare dry_run
 vm='false'
 
 # available colors for console output
@@ -188,8 +189,10 @@ is_password_required () {
   if ! sudo -n true 2>/dev/null; then
     # show custom password prompt
     msg_nc_nb "Please enter password for user " "$USER"; msg_nb ": "
-    # ask for user password
-    sudo -v -p ""
+    if [[ "${dry_run}" != "true" ]]; then
+      # ask for user password
+      sudo -v -p ""
+    fi
     msg_br
   fi
 }
@@ -392,5 +395,6 @@ main() {
 # set debug mode
 # debug="true"
 # ignore_vm="true"
+# dry_run="true"
 
 main "$@"
