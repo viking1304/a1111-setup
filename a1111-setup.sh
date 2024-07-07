@@ -71,6 +71,9 @@ readonly a1111_dest_dir="${HOME}/stable-diffusion-webui"
 readonly forge_repo="https://github.com/lllyasviel/stable-diffusion-webui-forge.git"
 readonly forge_dest_dir="${HOME}/stable-diffusion-webui-forge"
 
+# do not update Homebrew unless requested
+update_brew=false
+
 # install A1111 by default
 fork="a1111"
 
@@ -338,6 +341,52 @@ set_repo_and_dest_dir() {
 
 }
 
+
+# install Homebrew
+install_homebrew() {
+  msg_nc_nb "Checking for " "Homebrew"; msg "..."
+  if [[ -z "$(which brew)" ]]; then
+    msg_br
+    msg "Installing Homebrew..."
+    if [[ "${dry_run}" != true ]]; then
+      echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    else
+      dbg_msg "dry_run" "echo | /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+    fi
+    if cpu="arm"; then
+      # temporary add Homebrew to PATH if needed
+      if ! command -v brew > /dev/null; then
+        if [[ "${dry_run}" != true ]]; then
+          eval "$(/opt/homebrew/bin/brew shellenv)"
+        else
+          dbg_msg "dry_run" "eval \"\$(/opt/homebrew/bin/brew shellenv)\""
+        fi
+      fi
+      # permanently add Homebrew to PATH if not set in .zprofile
+      # shellcheck disable=SC2016
+      if ! grep -q 'eval "$(/opt/homebrew/bin/brew shellenv)"' ~/.zprofile; then
+        if [[ "${dry_run}" != true ]]; then
+          echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "${HOME}/.zprofile"
+        else
+          dbg_msg "dry_run" 'echo "eval \"\$(/opt/homebrew/bin/brew shellenv)\"" >> "${HOME}/.zprofile"'
+        fi
+      fi
+    fi
+  else
+    msg "Homebrew is already installed"
+    if [[ "${update_brew}" == true ]]; then
+      if [[ "${dry_run}" != true ]]; then
+        msg_br
+        brew update
+        brew upgrade
+      else
+        msg_br
+        dbg_msg "dry_run" "brew update && brew upgrade"
+      fi
+    fi
+  fi
+  msg_br
+}
 # display debug info
 debug_info() {
   dbg_hdr "SCRIPT"
@@ -356,6 +405,7 @@ debug_info() {
   dbg_msg "destination_dir" "${dest_dir}"
   msg_br
   dbg_hdr "ADDITIONAL INFO"
+  dbg_msg "update_brew" "${update_brew}"
   dbg_msg "color" "${color}"
   msg_br
 }
@@ -392,6 +442,9 @@ main() {
 
   # keep-alive by updating existing 'sudo' time stamp until script has finished
   keep_alive
+
+  # install Homebrew
+  install_homebrew
 }
 
 # set debug mode
