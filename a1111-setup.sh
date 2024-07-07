@@ -129,27 +129,27 @@ msg_nc_nb() {
 # warning message
 warn_msg() {
   local warn_subject="$1"
-  local warn_msg="$2"
+  local warn_message="$2"
 
   if [[ -z "$2" ]]; then
     warn_subject="WARNING: "
-    warn_msg="$1"
+    warn_message="$1"
   fi
 
-  msg_nb "${warn_subject}" "${warn_color}"; msg "${warn_msg}"
+  msg_nb "${warn_subject}" "${warn_color}"; msg "${warn_message}"
 }
 
 # error message
 err_msg() {
   local err_subject="$1"
-  local err_msg="$2"
+  local err_message="$2"
 
   if [[ -z "$2" ]]; then
     err_subject="ERROR: "
-    err_msg="$1"
+    err_message="$1"
   fi
 
-  msg_nb "${err_subject}" "${err_color}"; msg "${err_msg}"
+  msg_nb "${err_subject}" "${err_color}"; msg "${err_message}"
 }
 
 # debug header
