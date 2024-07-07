@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/07 20:36:03
+# Last modified: 2024/07/07 22:16:18
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -416,7 +416,111 @@ install_required_packages() {
   msg_br
 }
 
+# show list of modified files
+show_modified() {
+  msg "List of modified files:"
+  git status | grep modified | sed 's/	modified: //'
+}
 
+# install A1111 or Forge
+install_webui() {
+  # check if destination folder exists
+  if [[ ! -d "${dest_dir}" ]]; then
+    msg_nc_nb "Installing " "${fork}"; msg_nc_nb " into " "${dest_dir}"; msg "..."
+    # clone chosen repository to destination folder
+    if [[ "${dry_run}" != true ]]; then
+      if ! git clone "$repo" "$dest_dir"; then
+        msg_err "failed to clone repository ${repo}"
+        exit 1
+      else
+        # shellcheck disable=SC2164
+        cd "${dest_dir}"
+      fi
+    else
+      dbg_msg "dry_run" "git clone \"$repo\" \"$dest_dir\""
+    fi
+  else
+    if [[ "$(ls -A "${dest_dir}")" ]]; then
+      msg_nc_nb "Updating " "${fork}"; msg_nc_nb " installation in " "${dest_dir}"; msg "..."
+    else
+      msg_nc_nb "Installing " "${fork}"; msg_nc_nb " into " "${dest_dir}"; msg "..."
+    fi
+    if [[ "${dry_run}" != true ]]; then
+      # shellcheck disable=SC2164
+      cd "${dest_dir}"
+    else
+      dbg_msg "dry_run" "cd \"${dest_dir}\""
+    fi
+    # force webui upgrade
+    if [[ -d ".git" ]]; then
+      if [[ "${dry_run}" != true ]]; then
+        git reset --hard origin/"${branch}"
+      else
+        dbg_msg "dry_run" "git reset --hard origin/${branch}"
+      fi
+    else
+      if [[ "${dry_run}" != true ]]; then
+        git init
+        git remote add origin "$repo"
+        git fetch --all
+        git reset --hard origin/"${branch}"
+        git branch --set-upstream-to=origin/"${branch}" "${branch}"
+      else
+        dbg_msg "dry_run" "git init && git remote add origin \"$repo\" && git fetch --all && git reset --hard origin/${branch} && git branch --set-upstream-to=origin/${branch} ${branch}"
+      fi
+    fi
+    if [[ "${dry_run}" != true ]]; then
+      git pull
+    else
+      dbg_msg "dry_run" "git pull"
+    fi
+    if [[ "${dry_run}" != true ]]; then
+      if [[ "$(git status | grep modified)" != "" ]]; then
+        err_msg "some webui files are still modified"
+        show_modified
+        exit 1
+      fi
+    else
+      dbg_msg "dry_run" "git status | grep modified"
+    fi
+    # purge pip cache
+    if [[ -f "venv/bin/pip" ]]; then
+      msg "Purging pip cache..."
+      if [[ "${dry_run}" != true ]]; then
+        venv/bin/pip cache purge
+      else
+        dbg_msg "dry_run" "venv/bin/pip cache purge"
+      fi
+    fi
+    # remove venv
+    if [[ -d "venv" ]]; then
+      msg_nc_nb "Trying to remove " "venv"; msg "..."
+      if [[ "${dry_run}" != true ]]; then
+        rm -rf venv 2> /dev/null
+      else
+        dbg_msg "dry_run" "rm -rf venv"
+      fi
+      if [[ ! -d "venv" ]]; then
+        msg "Successfully removed venv"
+      else
+        warn "Could not remove venv"
+        msg "Trying to remove venv using admin privileges..."
+        if [[ "${dry_run}" != true ]]; then
+          sudo rm -rf venv 2> /dev/null
+        else
+          dbg_msg "dry_run" "sudo rm -rf venv"
+        fi
+        if [[ ! -d "venv" ]]; then
+          msg "Successfully removed venv using admin privileges"
+        else
+          err "could not remove venv even using admin privileges"
+          exit 1
+        fi
+      fi
+    fi
+  fi
+  msg_br
+}
 # display debug info
 debug_info() {
   dbg_hdr "SCRIPT"
@@ -478,6 +582,9 @@ main() {
 
   # install required packages
   install_required_packages
+
+  # (re)install A1111 or Forge
+  install_webui
 }
 
 # set debug mode
