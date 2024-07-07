@@ -15,7 +15,7 @@
 # Created: 2023/12/12 19:30:51
 # Last modified: 2024/07/07 19:15:30
 
-# Copyright (c) 2023 Aleksandar Milanovic
+# Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
