@@ -327,13 +327,6 @@ set_repo_and_dest_dir() {
     branch="main"
   fi
 
-  # treat destination folder as subfolder of home directory, unless it starts with slash
-  if [[ "${dest_dir:0:1}" != '/' ]]; then
-    dest_dir="${HOME}/${dest_dir}"
-  fi
-  # remove trailing slash
-  dest_dir="${dest_dir%/}"
-
   # if destination folder is not set use the default location based on fork
   if [[ -z "$dest_dir" ]]; then
     if [[ "$fork" == "a1111" ]]; then
@@ -343,6 +336,12 @@ set_repo_and_dest_dir() {
     fi
   fi
 
+  # treat destination folder as subfolder of home directory, unless it starts with slash
+  if [[ "${dest_dir:0:1}" != '/' ]]; then
+    dest_dir="${HOME}/${dest_dir}"
+  fi
+  # remove trailing slash
+  dest_dir="${dest_dir%/}"
 }
 
 
