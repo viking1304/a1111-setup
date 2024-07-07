@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/07 19:15:30
+# Last modified: 2024/07/07 20:26:02
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -232,6 +232,7 @@ parase_command_line_arguments() {
 
     display_help_header
     display_help_item "-h" "display help"
+    display_help_item "-b" "update Homebrew"
     display_help_item "-d folder_name" "specify the destination folder for webui installation"
     display_help_item "-o a1111|forge" "install A1111 or Forge"
     display_help_item "-c red|green|yellow|blue|magenta|cyan|no-color" "use specified color for messages"
@@ -239,11 +240,14 @@ parase_command_line_arguments() {
   }
 
   # parse command line arguments using getopts
-  while getopts ':hd:o:c:' opt; do
+  while getopts ':hbd:o:c:' opt; do
     case $opt in
       h)
         # just set the flag, because the user might want to use a custom color
         help=true
+        ;;
+      b)
+        update_brew=true
         ;;
         d)
           # ensure that destination does not start with dot
