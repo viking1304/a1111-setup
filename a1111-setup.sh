@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/07 20:26:02
+# Last modified: 2024/07/07 20:27:20
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -249,22 +249,22 @@ parase_command_line_arguments() {
       b)
         update_brew=true
         ;;
-        d)
-          # ensure that destination does not start with dot
-          if [[ "${OPTARG}" == .* ]]; then
-            err_msg "Do not install webui under a directory with leading dot (.)"
-            msg_cn "MORE INFO: " "https://github.com/AUTOMATIC1111/stable-diffusion-webui/issues/13292"
-            exit 1
-          fi
-          dest_dir="${OPTARG}"
-          ;;
-        o)
-          if [[ "${OPTARG}" != "forge"  && "${OPTARG}" != "a1111" ]]; then
-            err_msg "Valid arguments for the parameter ${ec}-o${nc} are a1111 and forge"
-            exit 1
-          fi
-          fork="${OPTARG}"
-          ;;
+      d)
+        # ensure that destination does not start with dot
+        if [[ "${OPTARG}" == .* ]]; then
+          err_msg "Do not install webui under a directory with leading dot (.)"
+          msg_cn "MORE INFO: " "https://github.com/AUTOMATIC1111/stable-diffusion-webui/issues/13292"
+          exit 1
+        fi
+        dest_dir="${OPTARG}"
+        ;;
+      o)
+        if [[ "${OPTARG}" != "forge"  && "${OPTARG}" != "a1111" ]]; then
+          err_msg "Valid arguments for the parameter ${ec}-o${nc} are a1111 and forge"
+          exit 1
+        fi
+        fork="${OPTARG}"
+        ;;
       c)
         # handle invalid colors
         if [[ "${OPTARG}" != "red" && "${OPTARG}" != "green" && "${OPTARG}" != "yellow" &&
