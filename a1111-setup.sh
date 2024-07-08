@@ -394,14 +394,14 @@ install_homebrew() {
 # install Homebrew package
 brew_install() {
     msg_nc_nb "Installing " "$1"; msg "..."
-    if brew list "$1" &>/dev/null; then
-        msg "$1 is already installed"
-    else
-      if [[ "${dry_run}" != true ]]; then
-        brew install "$1" && msg "$1 is installed"
+    if [[ "${dry_run}" != true ]]; then
+      if brew list "$1" &>/dev/null; then
+          msg "$1 is already installed"
       else
-        dbg_msg "dry_run" "brew install \"$1\""
+        brew install "$1" && msg "$1 is installed"
       fi
+    else
+      dbg_msg "dry_run" "brew install \"$1\""
     fi
 }
 
