@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/09 21:07:05
+# Last modified: 2024/07/09 21:10:59
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -177,7 +177,7 @@ dbg_msg() {
 
 # dry run message
 dry_msg() {
-  msg_cn "TEST MODE: " "$1"
+  msg_cn "TEST RUN " "$1"
 }
 
 # display welcome message
