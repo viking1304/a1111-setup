@@ -169,6 +169,11 @@ dbg_msg() {
   msg_cn "$1:" " $2"
 }
 
+# dry run message
+dry_msg() {
+  msg_cn "TEST MODE: " "$1"
+}
+
 # display welcome message
 welcome_message() {
   msg "Welcome to"
@@ -354,7 +359,7 @@ install_homebrew() {
     if [[ "${dry_run}" != true ]]; then
       echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     else
-      dbg_msg "dry_run" "echo | /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+      dry_msg "echo | /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
     fi
     if cpu="arm"; then
       # temporary add Homebrew to PATH if needed
@@ -362,7 +367,7 @@ install_homebrew() {
         if [[ "${dry_run}" != true ]]; then
           eval "$(/opt/homebrew/bin/brew shellenv)"
         else
-          dbg_msg "dry_run" "eval \"\$(/opt/homebrew/bin/brew shellenv)\""
+          dry_msg "eval \"\$(/opt/homebrew/bin/brew shellenv)\""
         fi
       fi
       # permanently add Homebrew to PATH if not set in .zprofile
@@ -371,7 +376,7 @@ install_homebrew() {
         if [[ "${dry_run}" != true ]]; then
           echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "${HOME}/.zprofile"
         else
-          dbg_msg "dry_run" 'echo "eval \"\$(/opt/homebrew/bin/brew shellenv)\"" >> "${HOME}/.zprofile"'
+          dry_msg 'echo "eval \"\$(/opt/homebrew/bin/brew shellenv)\"" >> "${HOME}/.zprofile"'
         fi
       fi
     fi
@@ -384,7 +389,7 @@ install_homebrew() {
         brew upgrade
       else
         msg_br
-        dbg_msg "dry_run" "brew update && brew upgrade"
+        dry_msg "brew update && brew upgrade"
       fi
     fi
   fi
@@ -401,7 +406,7 @@ brew_install() {
         brew install "$1" && msg "$1 is installed"
       fi
     else
-      dbg_msg "dry_run" "brew install \"$1\""
+      dry_msg "brew install \"$1\""
     fi
 }
 
@@ -437,7 +442,7 @@ install_webui() {
         cd "${dest_dir}"
       fi
     else
-      dbg_msg "dry_run" "git clone \"$repo\" \"$dest_dir\""
+      dry_msg "git clone \"$repo\" \"$dest_dir\""
     fi
   else
     if [[ "$(ls -A "${dest_dir}")" ]]; then
@@ -449,14 +454,14 @@ install_webui() {
       # shellcheck disable=SC2164
       cd "${dest_dir}"
     else
-      dbg_msg "dry_run" "cd \"${dest_dir}\""
+      dry_msg "cd \"${dest_dir}\""
     fi
     # force webui upgrade
     if [[ -d ".git" ]]; then
       if [[ "${dry_run}" != true ]]; then
         git reset --hard origin/"${branch}"
       else
-        dbg_msg "dry_run" "git reset --hard origin/${branch}"
+        dry_msg "git reset --hard origin/${branch}"
       fi
     else
       if [[ "${dry_run}" != true ]]; then
@@ -466,13 +471,13 @@ install_webui() {
         git reset --hard origin/"${branch}"
         git branch --set-upstream-to=origin/"${branch}" "${branch}"
       else
-        dbg_msg "dry_run" "git init && git remote add origin \"$repo\" && git fetch --all && git reset --hard origin/${branch} && git branch --set-upstream-to=origin/${branch} ${branch}"
+        dry_msg "git init && git remote add origin \"$repo\" && git fetch --all && git reset --hard origin/${branch} && git branch --set-upstream-to=origin/${branch} ${branch}"
       fi
     fi
     if [[ "${dry_run}" != true ]]; then
       git pull
     else
-      dbg_msg "dry_run" "git pull"
+      dry_msg "git pull"
     fi
     if [[ "${dry_run}" != true ]]; then
       if [[ "$(git status | grep modified)" != "" ]]; then
@@ -481,7 +486,7 @@ install_webui() {
         exit 1
       fi
     else
-      dbg_msg "dry_run" "git status | grep modified"
+      dry_msg "git status | grep modified"
     fi
     # purge pip cache
     if [[ -f "venv/bin/pip" ]]; then
@@ -489,7 +494,7 @@ install_webui() {
       if [[ "${dry_run}" != true ]]; then
         venv/bin/pip cache purge
       else
-        dbg_msg "dry_run" "venv/bin/pip cache purge"
+        dry_msg "venv/bin/pip cache purge"
       fi
     fi
     # remove venv
@@ -498,7 +503,7 @@ install_webui() {
       if [[ "${dry_run}" != true ]]; then
         rm -rf venv 2> /dev/null
       else
-        dbg_msg "dry_run" "rm -rf venv"
+        dry_msg "rm -rf venv"
       fi
       if [[ ! -d "venv" ]]; then
         msg "Successfully removed venv"
@@ -508,7 +513,7 @@ install_webui() {
         if [[ "${dry_run}" != true ]]; then
           sudo rm -rf venv 2> /dev/null
         else
-          dbg_msg "dry_run" "sudo rm -rf venv"
+          dry_msg "sudo rm -rf venv"
         fi
         if [[ ! -d "venv" ]]; then
           msg "Successfully removed venv using admin privileges"
