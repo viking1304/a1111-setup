@@ -430,7 +430,7 @@ install_webui() {
     # clone chosen repository to destination folder
     if [[ "${dry_run}" != true ]]; then
       if ! git clone "$repo" "$dest_dir"; then
-        msg_err "failed to clone repository ${repo}"
+        err_msg "failed to clone repository ${repo}"
         exit 1
       else
         # shellcheck disable=SC2164
@@ -513,7 +513,7 @@ install_webui() {
         if [[ ! -d "venv" ]]; then
           msg "Successfully removed venv using admin privileges"
         else
-          err "could not remove venv even using admin privileges"
+          err_msg "could not remove venv even using admin privileges"
           exit 1
         fi
       fi
