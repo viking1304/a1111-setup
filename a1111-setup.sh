@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/09 19:16:06
+# Last modified: 2024/07/09 20:17:28
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -76,6 +76,12 @@ update_brew=false
 
 # install A1111 by default
 fork="a1111"
+
+# only fix errors
+fix="errors"
+
+# use recommended PyTorch version
+torch_version="automatic"
 
 # basic message without a new line
 msg_nb() {
@@ -543,10 +549,115 @@ debug_info() {
   dbg_msg "master" "${branch}"
   dbg_msg "destination_dir" "${dest_dir}"
   msg_br
+  dbg_hdr "TORCH VERSION"
+  dbg_msg "torch" "${torch_version}"
+  msg_br
+  dbg_hdr "FIXES"
+  dbg_msg "fix" "${fix}"
+  msg_br
   dbg_hdr "ADDITIONAL INFO"
   dbg_msg "update_brew" "${update_brew}"
   dbg_msg "color" "${color}"
   msg_br
+}
+
+# download patch file from URL and patch files
+patch_file () {
+  local sha256
+  sha256=$(curl -s "$1" | shasum -a 256 - | cut -d " " -f1)
+  if [[ "$sha256" == "$2" ]]; then
+    if [[ "${dry_run}" != true ]]; then
+      # shellcheck disable=SC2154
+      if [[ "${debug}" != true ]]; then
+        curl -s "$1" | git apply -v -q --index
+      else
+        curl "$1" | git apply -v --index
+      fi
+    else
+      dry_msg "curl -s \"$1\" | git apply -v -q --index"
+    fi
+  else
+    err_msg "SHA256 mismatch"
+    msg_nc "Expected: " "$2"
+    msg_nc "Found: " "$sha256"
+    exit 1
+  fi
+}
+
+# apply patches for A1111
+apply_a1111_patches() {
+  # use develop version of PyTorch if requested
+  if [[ "${torch_version}" == "develop" ]]; then
+    if [[ "${cpu}" == "arm" && "${vm}" == false ]]; then
+      msg_cn "Applying patch: " "Use development version of torch"
+      msg "https://github.com/viking1304/stable-diffusion-webui/commit/36604c3d54fb9377b6070b08f525a011c0373ea6"
+      patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/36604c3d54fb9377b6070b08f525a011c0373ea6.patch?full_index=1" "1b9c89c7462ad4f4e3876f56c7217aa5976bf9f19e1c18db85165d8ce20776fe"
+    else
+      if [[ "${vm}" == false ]]; then
+        warn_msg "You cannot use development version of PyTorch, because PyTorch dropped support for Intel Macs"
+      else
+        warn_msg "You cannot use development version of PyTorch inside virtual machine"
+      fi
+    fi
+    msg_br
+  fi
+
+  # check if user specifically requested not to apply any fixes
+  if [[ "${fix}" == "none" ]]; then
+    return
+  fi
+
+  msg_nb "TEMPORARY FIXES" "${warn_color}"; msg " - not needed after release of A1111 v1.10"; msg_br
+
+  # TODO: remove after release of A1111 v1.10
+  msg_cn "Applying patch: " "Use different PyTorch versions for ARM and Intel Macs"
+  msg "https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/15851"
+  patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/5867be2914c303c2f8ba86ff23dba4b31aeafa79.patch?full_index=1" "c10b445b80875a6b2fd4d83661f206698995a0c3206e391cec1405818d417be0"
+  msg_br
+
+  # TODO: remove after release of A1111 v1.10
+  msg_cn "Applying patch: " "Update PyTorch for ARM Macs to 2.3.1"
+  msg "https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/16059"
+  patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/a772fd9804944cc19c4d6a03ccfbaa6066ce62a8.patch?full_index=1" "24076e71eba70c970c962dd5874c8d491116f5f63da9f576edd82ead98eb51c3"
+  msg_br
+
+  # TODO: remove after release of A1111 v1.10
+  msg_cn "Applying patch: " "Prioritize python3.10 over python3 if both are available"
+  msg "https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/16092"
+  patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/ec3c31e7a19f3240bfba072787399eb02b88dc9e.patch?full_index=1" "8c5ef814f61ecb3036315a8d1cde7d3dce38e7480e3325e54debb1bf4a15fdba"
+  msg_br
+
+  msg "FIXES" "${warn_color}"; msg_br
+
+  # set recommended command line args
+  if [[ "${vm}" != true ]]; then
+    if [[ "${cpu}" == "arm" ]]; then
+      msg_cn "Applying patch: " "Set recommended command line args"
+      msg_nc "COMMANDLINE_ARGS=" "\"--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --use-cpu interrogate\""
+      patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/develop/patches/lineargs.patch" "23f4ef196c3e6dc868de6b664c0feca5da08c91db4d9b2829587c62a37433747"
+    else
+      msg_cn "Applying patch: " "Set recommended command line args for Intel"
+      msg_nc "COMMANDLINE_ARGS=" "\"--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half --lowvram --use-cpu interrogate\""
+      patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/86814db94400c4574fbf473378c03ab30423ef0d/patches/intel-lineargs.patch" "62ba57613211b41ae4c505d896f88be590348f759b746bf469a8df4cdaf314aa"
+    fi
+    msg_br
+  fi
+
+  # set command line args for VM
+  if [[ "${vm}" == true ]]; then
+    msg_cn "Applying patch: " "Set working command line args for VM"
+    msg_nc "COMMANDLINE_ARGS=" "\"--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half --lowvram --use-cpu all\""
+    patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/86814db94400c4574fbf473378c03ab30423ef0d/patches/vm-lineargs.patch" "c48fdeedfa8c370b789bcc21bdac73b34b3bd603559d0bead9d30d37f791d0d8"
+    msg_br
+  fi
+
+  # non-essential patches
+  if [[ "${fix}" == "all" ]]; then
+    msg_cn "Applying patch: " "Fix cannot convert a MPS Tensor to float64 dtype error"
+    msg "https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/13099"
+    patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/ac4bfdb6434054a949384fe2b4b52e36e0be8db0.patch?full_index=1" "cc552f22e189f0446182f2ea67b84d3f496e255d879564c08f32830b008a5e93"
+    msg_br
+  fi
 }
 
 main() {
@@ -590,6 +701,11 @@ main() {
 
   # (re)install A1111 or Forge
   install_webui
+
+  # apply patches
+  if [[ "${fork}" == "a1111" ]]; then
+    apply_a1111_patches
+  fi
 }
 
 # set debug mode
