@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/09 22:14:21
+# Last modified: 2024/07/09 22:19:52
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -247,6 +247,7 @@ parase_command_line_arguments() {
     display_help_item "-r" "dry run, only show what would be done"
     display_help_item "-b" "update Homebrew"
     display_help_item "-t" "use development version of PyTorch"
+    display_help_item "-i" "show debug info and exit"
     display_help_item "-f all|none" "apply all fixes or none"
     display_help_item "-d folder_name" "specify the destination folder for webui installation"
     display_help_item "-o forge" "install Forge"
