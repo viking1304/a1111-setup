@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/09 21:18:34
+# Last modified: 2024/07/09 21:35:39
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -246,9 +246,9 @@ parase_command_line_arguments() {
     display_help_item "-r" "dry run, only show what would be done"
     display_help_item "-b" "update Homebrew"
     display_help_item "-t" "use development version of PyTorch"
-    display_help_item "-f all|errors|none" "apply all fixes, only fixes for errors or none"
+    display_help_item "-f all|none" "apply all fixes or none"
     display_help_item "-d folder_name" "specify the destination folder for webui installation"
-    display_help_item "-o a1111|forge" "install A1111 or Forge"
+    display_help_item "-o forge" "install Forge"
     display_help_item "-c red|green|yellow|blue|magenta|cyan|no-color" "use specified color for messages"
     msg_br
   }
@@ -270,8 +270,8 @@ parase_command_line_arguments() {
         dry_run=true
         ;;
       f)
-        if [[ "${OPTARG}" != "all"  && "${OPTARG}" != "errors" && "${OPTARG}" != "none" ]]; then
-          err_msg "parameter ${ec}-f${nc} must be all, errors or none"
+        if [[ "${OPTARG}" != "all" && "${OPTARG}" != "none" ]]; then
+          err_msg "Valid arguments for the parameter ${ec}-f${nc} are all and none"
           exit 1
         fi
         fix="${OPTARG}"
@@ -286,8 +286,8 @@ parase_command_line_arguments() {
         dest_dir="${OPTARG}"
         ;;
       o)
-        if [[ "${OPTARG}" != "forge"  && "${OPTARG}" != "a1111" ]]; then
-          err_msg "Valid arguments for the parameter ${ec}-o${nc} are a1111 and forge"
+        if [[ "${OPTARG}" != "forge" ]]; then
+          err_msg "Valid argument for the parameter ${ec}-o${nc} is forge"
           exit 1
         fi
         fork="${OPTARG}"
