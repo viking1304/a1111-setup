@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/09 20:17:28
+# Last modified: 2024/07/09 20:32:25
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -244,6 +244,8 @@ parase_command_line_arguments() {
     display_help_header
     display_help_item "-h" "display help"
     display_help_item "-b" "update Homebrew"
+    display_help_item "-t" "use development version of PyTorch"
+    display_help_item "-f all|errors|none" "apply all fixes, only fixes for errors or none"
     display_help_item "-d folder_name" "specify the destination folder for webui installation"
     display_help_item "-o a1111|forge" "install A1111 or Forge"
     display_help_item "-c red|green|yellow|blue|magenta|cyan|no-color" "use specified color for messages"
@@ -251,7 +253,7 @@ parase_command_line_arguments() {
   }
 
   # parse command line arguments using getopts
-  while getopts ':hbd:o:c:' opt; do
+  while getopts ':hbtf:d:o:c:' opt; do
     case $opt in
       h)
         # just set the flag, because the user might want to use a custom color
@@ -259,6 +261,16 @@ parase_command_line_arguments() {
         ;;
       b)
         update_brew=true
+        ;;
+        t)
+          torch_version="develop"
+          ;;
+        f)
+          if [[ "${OPTARG}" != "all"  && "${OPTARG}" != "errors" && "${OPTARG}" != "none" ]]; then
+            err_msg "parameter ${ec}-f${nc} must be all, errors or none"
+            exit 1
+          fi
+          fix="${OPTARG}"
         ;;
       d)
         # ensure that destination does not start with dot
