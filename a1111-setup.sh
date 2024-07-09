@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/09 22:03:06
+# Last modified: 2024/07/09 22:07:52
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -321,7 +321,7 @@ parase_command_line_arguments() {
   done
 
   # finally display help if the flag was set
-  if [[ "$help" == true ]]; then
+  if [[ "${help}" == true ]]; then
     display_help
     exit 0
   fi
@@ -350,20 +350,20 @@ detect_cpu_and_vm() {
 
 # set the repository, branch and destination folder
 set_repo_and_dest_dir() {
-  if [[ "$fork" == "a1111" ]]; then
-    repo="$a1111_repo"
+  if [[ "${fork}" == "a1111" ]]; then
+    repo="${a1111_repo}"
     branch="master"
   else
-    repo="$forge_repo"
+    repo="${forge_repo}"
     branch="main"
   fi
 
   # if destination folder is not set use the default location based on fork
-  if [[ -z "$dest_dir" ]]; then
-    if [[ "$fork" == "a1111" ]]; then
-      dest_dir="$a1111_dest_dir"
+  if [[ -z "${dest_dir}" ]]; then
+    if [[ "${fork}" == "a1111" ]]; then
+      dest_dir="${a1111_dest_dir}"
     else
-      dest_dir="$forge_dest_dir"
+      dest_dir="${forge_dest_dir}"
     fi
   fi
 
@@ -586,7 +586,7 @@ debug_info() {
 patch_file () {
   local sha256
   sha256=$(curl -s "$1" | shasum -a 256 - | cut -d " " -f1)
-  if [[ "$sha256" == "$2" ]]; then
+  if [[ "${sha256}" == "$2" ]]; then
     if [[ "${dry_run}" != true ]]; then
       # shellcheck disable=SC2154
       if [[ "${debug}" != true ]]; then
@@ -600,7 +600,7 @@ patch_file () {
   else
     err_msg "SHA256 mismatch"
     msg_nc "Expected: " "$2"
-    msg_nc "Found: " "$sha256"
+    msg_nc "Found: " "${sha256}"
     exit 1
   fi
 }
