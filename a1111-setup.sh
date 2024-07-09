@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/09 20:32:25
+# Last modified: 2024/07/09 21:01:51
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -262,16 +262,16 @@ parase_command_line_arguments() {
       b)
         update_brew=true
         ;;
-        t)
-          torch_version="develop"
-          ;;
-        f)
-          if [[ "${OPTARG}" != "all"  && "${OPTARG}" != "errors" && "${OPTARG}" != "none" ]]; then
-            err_msg "parameter ${ec}-f${nc} must be all, errors or none"
-            exit 1
-          fi
-          fix="${OPTARG}"
+      t)
+        torch_version="develop"
         ;;
+      f)
+        if [[ "${OPTARG}" != "all"  && "${OPTARG}" != "errors" && "${OPTARG}" != "none" ]]; then
+          err_msg "parameter ${ec}-f${nc} must be all, errors or none"
+          exit 1
+        fi
+        fix="${OPTARG}"
+      ;;
       d)
         # ensure that destination does not start with dot
         if [[ "${OPTARG}" == .* ]]; then
