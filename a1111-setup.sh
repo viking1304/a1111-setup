@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/09 21:35:39
+# Last modified: 2024/07/09 22:03:06
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -43,6 +43,7 @@ readonly YEAR='2024'
 declare debug
 declare ignore_vm
 declare dry_run
+declare show_info
 vm=false
 
 # available colors for console output
@@ -254,7 +255,7 @@ parase_command_line_arguments() {
   }
 
   # parse command line arguments using getopts
-  while getopts ':hbtrf:d:o:c:' opt; do
+  while getopts ':hbtrif:d:o:c:' opt; do
     case $opt in
       h)
         # just set the flag, because the user might want to use a custom color
@@ -268,6 +269,9 @@ parase_command_line_arguments() {
         ;;
       r)
         dry_run=true
+        ;;
+      i)
+        show_info=true
         ;;
       f)
         if [[ "${OPTARG}" != "all" && "${OPTARG}" != "none" ]]; then
@@ -548,6 +552,7 @@ install_webui() {
   fi
   msg_br
 }
+
 # display debug info
 debug_info() {
   dbg_hdr "SCRIPT"
@@ -699,8 +704,12 @@ main() {
   set_repo_and_dest_dir
 
   # show debug info
-  if [[ "${debug}" == true ]]; then
+  if [[ "${debug}" == true || "${show_info}" == true ]]; then
     debug_info
+  fi
+
+  if [[ "${show_info}" == true ]]; then
+    exit 0
   fi
 
   # check if sudo requires a password and ask user to enter it if necessary
