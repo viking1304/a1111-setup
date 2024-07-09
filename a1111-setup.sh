@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/07 22:16:18
+# Last modified: 2024/07/09 19:16:06
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -290,7 +290,7 @@ parase_command_line_arguments() {
   done
 
   # finally display help if the flag was set
-  if [[ "$help" == "true" ]]; then
+  if [[ "$help" == true ]]; then
     display_help
     exit 0
   fi
