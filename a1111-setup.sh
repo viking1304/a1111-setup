@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/09 22:07:52
+# Last modified: 2024/07/09 22:14:21
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -730,6 +730,8 @@ main() {
   # apply patches
   if [[ "${fork}" == "a1111" ]]; then
     apply_a1111_patches
+  else
+    msg "No patches for Forge"
   fi
 }
 
