@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/10 21:50:50
+# Last modified: 2024/07/10 22:33:07
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -624,10 +624,6 @@ debug_info() {
   dbg_msg "update_brew" "${update_brew}"
   dbg_msg "color" "${color}"
   msg_br
-  show_sys_info
-  msg_br
-  show_python_versions
-  msg_br
 }
 
 # download patch file from URL and patch files
@@ -746,16 +742,27 @@ main() {
   welcome_message
 
   # detect CPU and VM
-  detect_cpu_and_vm
+  if [[ "${show_info}" != true ]]; then
+    detect_cpu_and_vm
+  fi
 
   # set the repository, branch and destination folder
   set_repo_and_dest_dir
 
   # show debug info
-  if [[ "${debug}" == true || "${show_info}" == true ]]; then
+  if [[ "${debug}" == true ]]; then
     debug_info
   fi
 
+  # show system info and python versions
+  if [[ "${show_info}" == true || "${debug}" == true ]]; then
+    show_sys_info
+    msg_br
+    show_python_versions
+    msg_br
+  fi
+
+  # exit after showing info
   if [[ "${show_info}" == true ]]; then
     exit 0
   fi
