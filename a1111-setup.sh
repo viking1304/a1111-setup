@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/09 22:19:52
+# Last modified: 2024/07/10 21:50:50
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -554,6 +554,49 @@ install_webui() {
   msg_br
 }
 
+# show system info
+show_sys_info () {
+  get_sys_info() {
+    local command="$1"
+    local result
+    if [[ "$command" == "sw_vers" ]]; then
+      result=$(sw_vers | sed -e "s/^/\\${!color}/; s/:/\\${nc}: /g; s/\t//g")
+    else
+      result=$(system_profiler "$command" | sed -n '5,10 {
+          s/^ *//
+          s/:/:'\\"${nc}"'/g
+          s/^/'\\"${!color}"'/ 
+          p
+      }')
+    fi
+    msg "$result"
+  }
+  dbg_hdr "SYSTEM INFORMATION"
+  get_sys_info "SPHardwareDataType"
+  msg_br
+  dbg_hdr "GRAPHICS INFORMATION"
+  get_sys_info "SPDisplaysDataType"
+  msg_br
+  dbg_hdr "OS VERSION"
+  get_sys_info "sw_vers"
+}
+
+# show python version
+show_python_versions() {
+  dbg_hdr "PYTHON VERSIONS"
+  for v in {10..12}; do
+    if command -v python3."${v}" &> /dev/null; then
+      python_version="$(python3."${v}" --version)"
+      python_path="$(which python3."${v}")"
+      msg_cn "${python_version#*[[:space:]]}:" " ${python_path}"
+    fi
+  done
+  if command -v python3 &> /dev/null; then
+    p3="$(python3 --version)";
+    msg_cn "Default:" " ${p3#*[[:space:]]}"
+  fi
+}
+
 # display debug info
 debug_info() {
   dbg_hdr "SCRIPT"
@@ -580,6 +623,10 @@ debug_info() {
   dbg_hdr "ADDITIONAL INFO"
   dbg_msg "update_brew" "${update_brew}"
   dbg_msg "color" "${color}"
+  msg_br
+  show_sys_info
+  msg_br
+  show_python_versions
   msg_br
 }
 
