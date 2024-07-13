@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/10 22:33:07
+# Last modified: 2024/07/14 00:05:28
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -44,6 +44,7 @@ declare debug
 declare ignore_vm
 declare dry_run
 declare show_info
+declare -i ram
 vm=false
 
 # available colors for console output
@@ -328,9 +329,9 @@ parase_command_line_arguments() {
   fi
 }
 
-# detect processor and virtual machine
-detect_cpu_and_vm() {
-  msg "Detecting processor..."
+# get basic system info
+get_basic_system_info() {
+  msg "Detecting basic system information..."
 
   if [[ "$(sysctl -n machdep.cpu.brand_string)" =~ ^.*"Intel".*$ ]]; then
     cpu="intel"
@@ -339,6 +340,9 @@ detect_cpu_and_vm() {
     cpu="arm"
     msg_nc "Running on " "ARM"
   fi
+
+  ram="$(system_profiler SPHardwareDataType | sed -n '/Memory:/s/[^0-9]*//gp')"
+  msg_nc "Memory: " "${ram} GB"
 
   if [[ "${ignore_vm}" != true && "$(system_profiler SPHardwareDataType | grep -c "Identifier.*VirtualMac")" -eq 1 ]]; then
     vm=true
@@ -375,7 +379,6 @@ set_repo_and_dest_dir() {
   # remove trailing slash
   dest_dir="${dest_dir%/}"
 }
-
 
 # install Homebrew
 install_homebrew() {
@@ -741,9 +744,9 @@ main() {
   # show welcome message
   welcome_message
 
-  # detect CPU and VM
+  # get basic system info
   if [[ "${show_info}" != true ]]; then
-    detect_cpu_and_vm
+    get_basic_system_info
   fi
 
   # set the repository, branch and destination folder
