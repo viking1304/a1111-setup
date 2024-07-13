@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/14 01:29:37
+# Last modified: 2024/07/14 01:34:44
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -797,6 +797,14 @@ main() {
     apply_a1111_patches
   else
     msg "No patches for Forge"
+  fi
+
+  # run webui
+  msg_nc "Starting " "${fork}"
+  if [[ "${dry_run}" != true ]]; then
+    ./webui.sh
+  else
+    dry_msg "./webui.sh"
   fi
 }
 
