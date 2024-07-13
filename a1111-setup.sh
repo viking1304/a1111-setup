@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/14 00:05:28
+# Last modified: 2024/07/14 01:29:37
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -700,13 +700,20 @@ apply_a1111_patches() {
   # set recommended command line args
   if [[ "${vm}" != true ]]; then
     if [[ "${cpu}" == "arm" ]]; then
-      msg_cn "Applying patch: " "Set recommended command line args"
-      msg_nc "COMMANDLINE_ARGS=" "\"--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --use-cpu interrogate\""
-      patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/develop/patches/lineargs.patch" "23f4ef196c3e6dc868de6b664c0feca5da08c91db4d9b2829587c62a37433747"
+      msg_cn_nb "Applying patch: " "Set recommended command line args"
+      if (( "${ram}" >= 16 )); then
+        msg " for Macs with 16 GB or more of RAM"
+        msg "COMMANDLINE_ARGS=\"--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --use-cpu interrogate\""
+        patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/develop/patches/lineargs-arm.patch" "23f4ef196c3e6dc868de6b664c0feca5da08c91db4d9b2829587c62a37433747"
+      else
+        msg " for Macs with less than 16 GB of RAM"
+        msg "COMMANDLINE_ARGS=\"--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --lowvram --use-cpu interrogate\""
+        patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/develop/patches/lineargs-lowvram.patch" "fa102780cc830eefd576cbec43f6b416c02f27e4347851f82d143065ea686bd4"
+      fi
     else
       msg_cn "Applying patch: " "Set recommended command line args for Intel"
-      msg_nc "COMMANDLINE_ARGS=" "\"--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half --lowvram --use-cpu interrogate\""
-      patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/86814db94400c4574fbf473378c03ab30423ef0d/patches/intel-lineargs.patch" "62ba57613211b41ae4c505d896f88be590348f759b746bf469a8df4cdaf314aa"
+      msg "COMMANDLINE_ARGS=\"--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half --lowvram --use-cpu interrogate\""
+      patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/86814db94400c4574fbf473378c03ab30423ef0d/patches/lineargs-intel.patch" "62ba57613211b41ae4c505d896f88be590348f759b746bf469a8df4cdaf314aa"
     fi
     msg_br
   fi
@@ -714,8 +721,8 @@ apply_a1111_patches() {
   # set command line args for VM
   if [[ "${vm}" == true ]]; then
     msg_cn "Applying patch: " "Set working command line args for VM"
-    msg_nc "COMMANDLINE_ARGS=" "\"--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half --lowvram --use-cpu all\""
-    patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/86814db94400c4574fbf473378c03ab30423ef0d/patches/vm-lineargs.patch" "c48fdeedfa8c370b789bcc21bdac73b34b3bd603559d0bead9d30d37f791d0d8"
+    msg "COMMANDLINE_ARGS=\"--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half --lowvram --use-cpu all\""
+    patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/86814db94400c4574fbf473378c03ab30423ef0d/patches/lineargs-vm.patch" "c48fdeedfa8c370b789bcc21bdac73b34b3bd603559d0bead9d30d37f791d0d8"
     msg_br
   fi
 
