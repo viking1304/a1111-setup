@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.0
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/14 01:34:44
+# Last modified: 2024/07/15 21:04:59
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -652,8 +652,8 @@ patch_file () {
   fi
 }
 
-# apply patches for A1111
-apply_a1111_patches() {
+# apply patches
+apply_patches() {
   # use develop version of PyTorch if requested
   if [[ "${torch_version}" == "develop" ]]; then
     if [[ "${cpu}" == "arm" && "${vm}" == false ]]; then
@@ -675,25 +675,29 @@ apply_a1111_patches() {
     return
   fi
 
-  msg_nb "TEMPORARY FIXES" "${warn_color}"; msg " - not needed after release of A1111 v1.10"; msg_br
+  if [[ "${fork}" == "a1111" ]]; then
+    msg_nb "TEMPORARY PATCHES" "${warn_color}"; msg " - not needed after release of A1111 v1.10"; msg_br
+  else
+    msg "PATCHES BACKPORTED FROM A1111" "${warn_color}"; msg_br
+  fi
 
-  # TODO: remove after release of A1111 v1.10
-  msg_cn "Applying patch: " "Use different PyTorch versions for ARM and Intel Macs"
-  msg "https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/15851"
-  patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/5867be2914c303c2f8ba86ff23dba4b31aeafa79.patch?full_index=1" "c10b445b80875a6b2fd4d83661f206698995a0c3206e391cec1405818d417be0"
-  msg_br
+  # TODO: remove for A1111 after release of v1.10
+  if [[ "${fork}" == "forge" || "${fork}" == "a1111" ]]; then
+    msg_cn "Applying patch: " "Use different PyTorch versions for ARM and Intel Macs"
+    msg "https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/15851"
+    patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/5867be2914c303c2f8ba86ff23dba4b31aeafa79.patch?full_index=1" "c10b445b80875a6b2fd4d83661f206698995a0c3206e391cec1405818d417be0"
+    msg_br
 
-  # TODO: remove after release of A1111 v1.10
-  msg_cn "Applying patch: " "Update PyTorch for ARM Macs to 2.3.1"
-  msg "https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/16059"
-  patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/a772fd9804944cc19c4d6a03ccfbaa6066ce62a8.patch?full_index=1" "24076e71eba70c970c962dd5874c8d491116f5f63da9f576edd82ead98eb51c3"
-  msg_br
+    msg_cn "Applying patch: " "Update PyTorch for ARM Macs to 2.3.1"
+    msg "https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/16059"
+    patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/a772fd9804944cc19c4d6a03ccfbaa6066ce62a8.patch?full_index=1" "24076e71eba70c970c962dd5874c8d491116f5f63da9f576edd82ead98eb51c3"
+    msg_br
 
-  # TODO: remove after release of A1111 v1.10
-  msg_cn "Applying patch: " "Prioritize python3.10 over python3 if both are available"
-  msg "https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/16092"
-  patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/ec3c31e7a19f3240bfba072787399eb02b88dc9e.patch?full_index=1" "8c5ef814f61ecb3036315a8d1cde7d3dce38e7480e3325e54debb1bf4a15fdba"
-  msg_br
+    msg_cn "Applying patch: " "Prioritize python3.10 over python3 if both are available"
+    msg "https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/16092"
+    patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/ec3c31e7a19f3240bfba072787399eb02b88dc9e.patch?full_index=1" "8c5ef814f61ecb3036315a8d1cde7d3dce38e7480e3325e54debb1bf4a15fdba"
+    msg_br
+  fi
 
   msg "FIXES" "${warn_color}"; msg_br
 
@@ -703,12 +707,24 @@ apply_a1111_patches() {
       msg_cn_nb "Applying patch: " "Set recommended command line args"
       if (( "${ram}" >= 16 )); then
         msg " for Macs with 16 GB or more of RAM"
-        msg "COMMANDLINE_ARGS=\"--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --use-cpu interrogate\""
-        patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/develop/patches/lineargs-arm.patch" "23f4ef196c3e6dc868de6b664c0feca5da08c91db4d9b2829587c62a37433747"
+        if [[ "${fork}" == "a1111" ]]; then
+          msg "COMMANDLINE_ARGS=\"--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --use-cpu interrogate\""
+          patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/develop/patches/lineargs-arm.patch" "23f4ef196c3e6dc868de6b664c0feca5da08c91db4d9b2829587c62a37433747"
+        fi
+        if [[ "${fork}" == "forge" ]]; then
+          msg "COMMANDLINE_ARGS=\"--skip-torch-cuda-test --attention-pytorch --all-in-fp16 --always-high-vram --use-cpu interrogate\""
+          patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/develop/patches/lineargs-arm-f.patch" "75b2bf86ba0c7b73658ad9d22d62444affc7af61c904364bff0e88975e8af905"
+        fi
       else
         msg " for Macs with less than 16 GB of RAM"
-        msg "COMMANDLINE_ARGS=\"--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --lowvram --use-cpu interrogate\""
-        patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/develop/patches/lineargs-lowvram.patch" "fa102780cc830eefd576cbec43f6b416c02f27e4347851f82d143065ea686bd4"
+        if [[ "${fork}" == "a1111" ]]; then
+          msg "COMMANDLINE_ARGS=\"--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --lowvram --use-cpu interrogate\""
+          patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/develop/patches/lineargs-lowvram.patch" "fa102780cc830eefd576cbec43f6b416c02f27e4347851f82d143065ea686bd4"
+        fi
+        if [[ "${fork}" == "forge" ]]; then
+          msg "COMMANDLINE_ARGS=\"--skip-torch-cuda-test --attention-pytorch --all-in-fp16 --use-cpu interrogate\""
+          patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/develop/patches/lineargs-lowvram-f.patch" "2b06015a393804db584a2a91ef56f1a0727f63fc93e44821471f7b4b8cca6550"
+        fi
       fi
     else
       msg_cn "Applying patch: " "Set recommended command line args for Intel"
@@ -793,11 +809,7 @@ main() {
   install_webui
 
   # apply patches
-  if [[ "${fork}" == "a1111" ]]; then
-    apply_a1111_patches
-  else
-    msg "No patches for Forge"
-  fi
+  apply_patches
 
   # run webui
   msg_nc "Starting " "${fork}"
