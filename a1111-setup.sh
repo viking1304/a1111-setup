@@ -11,9 +11,9 @@
 # Bugs: ---
 # Notes: ---
 # Author: Aleksandar Milanovic (viking1304)
-# Version: 0.2.0
+# Version: 0.2.2
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/15 21:04:59
+# Last modified: 2024/07/16 19:45:09
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -36,7 +36,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-readonly VERSION='0.2.0'
+readonly VERSION='0.2.2'
 readonly YEAR='2024'
 
 # declare variables
@@ -709,27 +709,27 @@ apply_patches() {
         msg " for Macs with 16 GB or more of RAM"
         if [[ "${fork}" == "a1111" ]]; then
           msg "COMMANDLINE_ARGS=\"--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --use-cpu interrogate\""
-          patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/develop/patches/lineargs-arm.patch" "23f4ef196c3e6dc868de6b664c0feca5da08c91db4d9b2829587c62a37433747"
+          patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/main/patches/lineargs-arm.patch" "23f4ef196c3e6dc868de6b664c0feca5da08c91db4d9b2829587c62a37433747"
         fi
         if [[ "${fork}" == "forge" ]]; then
           msg "COMMANDLINE_ARGS=\"--skip-torch-cuda-test --attention-pytorch --all-in-fp16 --always-high-vram --use-cpu interrogate\""
-          patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/develop/patches/lineargs-arm-f.patch" "75b2bf86ba0c7b73658ad9d22d62444affc7af61c904364bff0e88975e8af905"
+          patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/main/patches/lineargs-arm-f.patch" "75b2bf86ba0c7b73658ad9d22d62444affc7af61c904364bff0e88975e8af905"
         fi
       else
         msg " for Macs with less than 16 GB of RAM"
         if [[ "${fork}" == "a1111" ]]; then
           msg "COMMANDLINE_ARGS=\"--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half-vae --lowvram --use-cpu interrogate\""
-          patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/develop/patches/lineargs-lowvram.patch" "fa102780cc830eefd576cbec43f6b416c02f27e4347851f82d143065ea686bd4"
+          patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/main/patches/lineargs-lowvram.patch" "fa102780cc830eefd576cbec43f6b416c02f27e4347851f82d143065ea686bd4"
         fi
         if [[ "${fork}" == "forge" ]]; then
           msg "COMMANDLINE_ARGS=\"--skip-torch-cuda-test --attention-pytorch --all-in-fp16 --use-cpu interrogate\""
-          patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/develop/patches/lineargs-lowvram-f.patch" "2b06015a393804db584a2a91ef56f1a0727f63fc93e44821471f7b4b8cca6550"
+          patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/main/patches/lineargs-lowvram-f.patch" "2b06015a393804db584a2a91ef56f1a0727f63fc93e44821471f7b4b8cca6550"
         fi
       fi
     else
       msg_cn "Applying patch: " "Set recommended command line args for Intel"
       msg "COMMANDLINE_ARGS=\"--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half --lowvram --use-cpu interrogate\""
-      patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/86814db94400c4574fbf473378c03ab30423ef0d/patches/lineargs-intel.patch" "62ba57613211b41ae4c505d896f88be590348f759b746bf469a8df4cdaf314aa"
+      patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/main/patches/lineargs-intel.patch" "62ba57613211b41ae4c505d896f88be590348f759b746bf469a8df4cdaf314aa"
     fi
     msg_br
   fi
@@ -738,7 +738,7 @@ apply_patches() {
   if [[ "${vm}" == true ]]; then
     msg_cn "Applying patch: " "Set working command line args for VM"
     msg "COMMANDLINE_ARGS=\"--skip-torch-cuda-test --opt-sub-quad-attention --upcast-sampling --no-half --lowvram --use-cpu all\""
-    patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/86814db94400c4574fbf473378c03ab30423ef0d/patches/lineargs-vm.patch" "c48fdeedfa8c370b789bcc21bdac73b34b3bd603559d0bead9d30d37f791d0d8"
+    patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/main/patches/lineargs-vm.patch" "c48fdeedfa8c370b789bcc21bdac73b34b3bd603559d0bead9d30d37f791d0d8"
     msg_br
   fi
 
