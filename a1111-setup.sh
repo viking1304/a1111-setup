@@ -11,9 +11,9 @@
 # Bugs: ---
 # Notes: ---
 # Author: Aleksandar Milanovic (viking1304)
-# Version: 0.2.2
+# Version: 0.2.3
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/18 13:01:29
+# Last modified: 2024/07/18 13:42:51
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -36,7 +36,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-readonly VERSION='0.2.2'
+readonly VERSION='0.2.3'
 readonly YEAR='2024'
 
 # declare variables
