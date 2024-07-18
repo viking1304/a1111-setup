@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.2
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/16 19:45:09
+# Last modified: 2024/07/18 13:01:29
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -696,6 +696,21 @@ apply_patches() {
     msg_cn "Applying patch: " "Prioritize python3.10 over python3 if both are available"
     msg "https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/16092"
     patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/ec3c31e7a19f3240bfba072787399eb02b88dc9e.patch?full_index=1" "8c5ef814f61ecb3036315a8d1cde7d3dce38e7480e3325e54debb1bf4a15fdba"
+    msg_br
+
+    msg_cn "Applying patch: " "Fix corrupt model initial load loop"
+    msg "https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/15600"
+    patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/2b717bb195a3034853ed45a52c5752f010e1302b.patch?full_index=1" "ca73a638ac47d3916d32750a67da14e4d539004d8f732f74136736f2ed2f88b0"
+    msg_br
+
+    msg_cn "Applying patch: " "Add option to check file hash after download"
+    msg "https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/15602"
+    patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/246c269af87757998f57bb27ddda59fdc7cff976.patch?full_index=1" "d96cb6e9b8395476c1faa0ee53c2cdf11e52c3dca080ac48dce39f418879d053"
+    msg_br
+
+    msg_cn "Applying patch: " "Ensure integrity for initial sd model download"
+    msg "https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/15602"
+    patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/c69773d7e8f23f8b6c46a8e177b50386e1f1b8e8.patch?full_index=1" "e2a554d2752da7a4f61df6298f47e2995d8f853d061a4272f91fac0330b1a5ea"
     msg_br
   fi
 
