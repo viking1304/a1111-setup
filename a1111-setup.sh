@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.3
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/18 13:42:51
+# Last modified: 2024/07/28 16:12:14
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -211,17 +211,23 @@ is_password_required () {
     else
       msg_br
     fi
-    msg_br
+  else
+    msg_nc_nb "Password for user " "$USER"; msg " not required."
   fi
+  msg_br
 }
 
 # keep-alive by updating existing 'sudo' time stamp until script has finished
-keep_alive() {
+keep_sudo_alive() {
   while true; do
-    sudo -n true  # refresh sudo timestamp without prompt
-    sleep 60      # sleep for 60 seconds
-    kill -0 "$$" || exit  # check if script is still running; exit if not
-  done 2>/dev/null &
+    sudo -n true
+    sleep 30
+  done &
+  SUDO_KEEP_ALIVE_PID=$!
+  if [[ "${debug}" == true ]]; then
+    msg_nc "keep_sudo_alive process started with PID: " "$SUDO_KEEP_ALIVE_PID"
+    msg_br
+  fi
 }
 
 # parse command line arguments
@@ -766,7 +772,19 @@ apply_patches() {
   fi
 }
 
+cleanup() {
+  if [[ -n "$SUDO_KEEP_ALIVE_PID" ]]; then
+    if [[ "${debug}" == true ]]; then
+      msg_nc "Stopping keep_sudo_alive process with PID: " "$SUDO_KEEP_ALIVE_PID"
+    fi
+    kill "$SUDO_KEEP_ALIVE_PID" 2>/dev/null
+  fi
+}
+
 main() {
+  # execute cleanup function on EXIT
+  trap cleanup EXIT
+
   # display blank line
   msg_br
 
@@ -812,7 +830,7 @@ main() {
   is_password_required
 
   # keep-alive by updating existing 'sudo' time stamp until script has finished
-  keep_alive
+  keep_sudo_alive
 
   # install Homebrew
   install_homebrew
