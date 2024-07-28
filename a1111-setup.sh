@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.3
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/28 16:12:14
+# Last modified: 2024/07/28 16:17:55
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -826,11 +826,13 @@ main() {
     exit 0
   fi
 
-  # check if sudo requires a password and ask user to enter it if necessary
-  is_password_required
+  # do not ask for password upfront, because of recent Homebrew changes 
+  # https://github.com/orgs/Homebrew/discussions/5528
 
+  # check if sudo requires a password and ask user to enter it if necessary
+  # is_password_required
   # keep-alive by updating existing 'sudo' time stamp until script has finished
-  keep_sudo_alive
+  # keep_sudo_alive
 
   # install Homebrew
   install_homebrew
