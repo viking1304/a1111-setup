@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.3
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/28 16:17:55
+# Last modified: 2024/07/28 16:47:08
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -638,17 +638,23 @@ debug_info() {
 # download patch file from URL and patch files
 patch_file () {
   local sha256
+  local curl_opts=""
+  local git_opts="-v --index"
   sha256=$(curl -s "$1" | shasum -a 256 - | cut -d " " -f1)
   if [[ "${sha256}" == "$2" ]]; then
     if [[ "${dry_run}" != true ]]; then
-      # shellcheck disable=SC2154
       if [[ "${debug}" != true ]]; then
-        curl -s "$1" | git apply -v -q --index
+        curl_opts="-s"
+        git_opts="-q --index"
+      fi
+      if curl $curl_opts "$1" | git apply $git_opts; then
+        msg "Successfully applied patch"
       else
-        curl "$1" | git apply -v --index
+        err_msg "Could not apply patch"
+        exit 1
       fi
     else
-      dry_msg "curl -s \"$1\" | git apply -v -q --index"
+      dry_msg "curl \"$1\" | git apply $git_opts"
     fi
   else
     err_msg "SHA256 mismatch"
