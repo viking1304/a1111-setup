@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.3
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/28 16:47:08
+# Last modified: 2024/07/28 17:03:45
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -685,45 +685,6 @@ apply_patches() {
   # check if user specifically requested not to apply any fixes
   if [[ "${fix}" == "none" ]]; then
     return
-  fi
-
-  if [[ "${fork}" == "a1111" ]]; then
-    msg_nb "TEMPORARY PATCHES" "${warn_color}"; msg " - not needed after release of A1111 v1.10"; msg_br
-  else
-    msg "PATCHES BACKPORTED FROM A1111" "${warn_color}"; msg_br
-  fi
-
-  # TODO: remove for A1111 after release of v1.10
-  if [[ "${fork}" == "forge" || "${fork}" == "a1111" ]]; then
-    msg_cn "Applying patch: " "Use different PyTorch versions for ARM and Intel Macs"
-    msg "https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/15851"
-    patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/5867be2914c303c2f8ba86ff23dba4b31aeafa79.patch?full_index=1" "c10b445b80875a6b2fd4d83661f206698995a0c3206e391cec1405818d417be0"
-    msg_br
-
-    msg_cn "Applying patch: " "Update PyTorch for ARM Macs to 2.3.1"
-    msg "https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/16059"
-    patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/a772fd9804944cc19c4d6a03ccfbaa6066ce62a8.patch?full_index=1" "24076e71eba70c970c962dd5874c8d491116f5f63da9f576edd82ead98eb51c3"
-    msg_br
-
-    msg_cn "Applying patch: " "Prioritize python3.10 over python3 if both are available"
-    msg "https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/16092"
-    patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/ec3c31e7a19f3240bfba072787399eb02b88dc9e.patch?full_index=1" "8c5ef814f61ecb3036315a8d1cde7d3dce38e7480e3325e54debb1bf4a15fdba"
-    msg_br
-
-    msg_cn "Applying patch: " "Fix corrupt model initial load loop"
-    msg "https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/15600"
-    patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/2b717bb195a3034853ed45a52c5752f010e1302b.patch?full_index=1" "ca73a638ac47d3916d32750a67da14e4d539004d8f732f74136736f2ed2f88b0"
-    msg_br
-
-    msg_cn "Applying patch: " "Add option to check file hash after download"
-    msg "https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/15602"
-    patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/246c269af87757998f57bb27ddda59fdc7cff976.patch?full_index=1" "d96cb6e9b8395476c1faa0ee53c2cdf11e52c3dca080ac48dce39f418879d053"
-    msg_br
-
-    msg_cn "Applying patch: " "Ensure integrity for initial sd model download"
-    msg "https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/15602"
-    patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/c69773d7e8f23f8b6c46a8e177b50386e1f1b8e8.patch?full_index=1" "e2a554d2752da7a4f61df6298f47e2995d8f853d061a4272f91fac0330b1a5ea"
-    msg_br
   fi
 
   msg "FIXES" "${warn_color}"; msg_br
