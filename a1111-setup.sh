@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.4
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/07/28 17:04:42
+# Last modified: 2024/10/28 21:41:12
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -593,7 +593,7 @@ show_sys_info () {
 # show python version
 show_python_versions() {
   dbg_hdr "PYTHON VERSIONS"
-  for v in {10..12}; do
+  for v in {10..13}; do
     if command -v python3."${v}" &> /dev/null; then
       python_version="$(python3."${v}" --version)"
       python_path="$(which python3."${v}")"
