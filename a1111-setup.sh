@@ -598,8 +598,8 @@ install_extensions() {
         git clone https://github.com/Mikubill/sd-webui-controlnet "${ext}/sd-webui-controlnet.git"
         git clone https://github.com/pkuliyi2015/multidiffusion-upscaler-for-automatic1111.git "${ext}/multidiffusion-upscaler-for-automatic1111"
       else
-        dry_msg "git clone https://github.com/Mikubill/sd-webui-controlnet.git ${ext}/sd-webui-controlnet"
-        dry_msg "git clone https://github.com/pkuliyi2015/multidiffusion-upscaler-for-automatic1111.git ${ext}/multidiffusion-upscaler-for-automatic1111"
+        dry_msg "git clone https://github.com/Mikubill/sd-webui-controlnet.git \"${ext}/sd-webui-controlnet\""
+        dry_msg "git clone https://github.com/pkuliyi2015/multidiffusion-upscaler-for-automatic1111.git \"${ext}/multidiffusion-upscaler-for-automatic1111\""
       fi
     fi
     # other recommended extensions
@@ -609,10 +609,10 @@ install_extensions() {
       git clone https://github.com/zanllp/sd-webui-infinite-image-browsing.git "${ext}/sd-webui-infinite-image-browsing"
       git clone https://github.com/hnmr293/sd-webui-cutoff.git "${ext}/sd-webui-cutoff"
     else
-      dry_msg "git clone https://github.com/BlafKing/sd-civitai-browser-plus.git ${ext}/sd-civitai-browser-plus"
-      dry_msg "git clone https://github.com/alexandersokol/sd-model-organizer.git ${ext}/sd-model-organizer"
-      dry_msg "git clone https://github.com/zanllp/sd-webui-infinite-image-browsing.git ${ext}/sd-webui-infinite-image-browsing"
-      dry_msg "git clone https://github.com/hnmr293/sd-webui-cutoff.git ${ext}/sd-webui-cutoff"
+      dry_msg "git clone https://github.com/BlafKing/sd-civitai-browser-plus.git \"${ext}/sd-civitai-browser-plus\""
+      dry_msg "git clone https://github.com/alexandersokol/sd-model-organizer.git \"${ext}/sd-model-organizer\""
+      dry_msg "git clone https://github.com/zanllp/sd-webui-infinite-image-browsing.git \"${ext}/sd-webui-infinite-image-browsing\""
+      dry_msg "git clone https://github.com/hnmr293/sd-webui-cutoff.git \"${ext}/sd-webui-cutoff\""
     fi
     msg_br
   fi
@@ -626,8 +626,8 @@ install_extensions() {
         git clone https://github.com/deforum-art/sd-webui-deforum.git "${ext}/deforum-for-automatic1111-webui"
         git clone https://github.com/continue-revolution/sd-webui-animatediff.git "${ext}/sd-webui-animatediff"
       else
-        dry_msg "git clone https://github.com/deforum-art/sd-webui-deforum.git ${ext}/deforum-for-automatic1111-webui"
-        dry_msg "git clone https://github.com/continue-revolution/sd-webui-animatediff.git ${ext}/sd-webui-animatediff"
+        dry_msg "git clone https://github.com/deforum-art/sd-webui-deforum.git \"${ext}/deforum-for-automatic1111-webui\""
+        dry_msg "git clone https://github.com/continue-revolution/sd-webui-animatediff.git \"${ext}/sd-webui-animatediff\""
       fi
     fi
     # forge specific extensions
@@ -636,8 +636,8 @@ install_extensions() {
         git clone https://github.com/deforum-art/sd-forge-deforum.git "${ext}/sd-forge-deforum"
         git clone https://github.com/continue-revolution/sd-forge-animatediff.git "${ext}/sd-webui-animatediff"
       else
-        dry_msg "git clone https://github.com/deforum-art/sd-forge-deforum.git ${ext}/sd-forge-deforum"
-        dry_msg "git clone https://github.com/continue-revolution/sd-forge-animatediff.git ${ext}/sd-webui-animatediff"
+        dry_msg "git clone https://github.com/deforum-art/sd-forge-deforum.git \"${ext}/sd-forge-deforum\""
+        dry_msg "git clone https://github.com/continue-revolution/sd-forge-animatediff.git \"${ext}/sd-webui-animatediff\""
       fi
     fi
     # common extensions
@@ -648,11 +648,11 @@ install_extensions() {
       git clone https://github.com/vladmandic/sd-extension-system-info.git "${ext}/sd-extension-system-info"
       git clone https://github.com/hako-mikan/sd-webui-regional-prompter.git "${ext}/sd-webui-regional-prompter"
     else
-      dry_msg "git clone https://github.com/canisminor1990/sd-webui-lobe-theme.git ${ext}/sd-webui-lobe-theme"
-      dry_msg "git clone https://github.com/DominikDoom/a1111-sd-webui-tagcomplete.git ${ext}/a1111-sd-webui-tagcomplete"
-      dry_msg "git clone https://github.com/adieyal/sd-dynamic-prompts.git ${ext}/sd-dynamic-prompts"
-      dry_msg "git clone https://github.com/vladmandic/sd-extension-system-info.git${ext}/sd-extension-system-info"
-      dry_msg "git clone https://github.com/hako-mikan/sd-webui-regional-prompter.git ${ext}/sd-webui-regional-prompter"
+      dry_msg "git clone https://github.com/canisminor1990/sd-webui-lobe-theme.git \"${ext}/sd-webui-lobe-theme\""
+      dry_msg "git clone https://github.com/DominikDoom/a1111-sd-webui-tagcomplete.git \"${ext}/a1111-sd-webui-tagcomplete\""
+      dry_msg "git clone https://github.com/adieyal/sd-dynamic-prompts.git \"${ext}/sd-dynamic-prompts\""
+      dry_msg "git clone https://github.com/vladmandic/sd-extension-system-info.git \"${ext}/sd-extension-system-info\""
+      dry_msg "git clone https://github.com/hako-mikan/sd-webui-regional-prompter.git \"${ext}/sd-webui-regional-prompter\""
     fi
     msg_br
   fi
