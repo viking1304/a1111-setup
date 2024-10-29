@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.4
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/10/29 14:34:50
+# Last modified: 2024/10/29 21:57:18
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -258,12 +258,13 @@ parase_command_line_arguments() {
     display_help_item "-f all|none" "apply all fixes or none"
     display_help_item "-d folder_name" "specify the destination folder for webui installation"
     display_help_item "-o forge" "install Forge"
+    display_help_item "-e recommended|useful" "install recommended extensions only, or include additional useful ones as well"
     display_help_item "-c red|green|yellow|blue|magenta|cyan|no-color" "use specified color for messages"
     msg_br
   }
 
   # parse command line arguments using getopts
-  while getopts ':hbtrif:d:o:c:' opt; do
+  while getopts ':hbtrif:d:o:e:c:' opt; do
     case $opt in
       h)
         # just set the flag, because the user might want to use a custom color
@@ -303,6 +304,13 @@ parase_command_line_arguments() {
           exit 1
         fi
         fork="${OPTARG}"
+        ;;
+      e)
+        if [[ "${OPTARG}" != "recommended" && "${OPTARG}" != "useful" ]]; then
+          err_msg "Valid arguments for the parameter ${ec}-e${nc} are recommended and useful"
+          exit 1
+        fi
+        add_extensions="${OPTARG}"
         ;;
       c)
         # handle invalid colors
@@ -573,6 +581,77 @@ install_webui() {
     fi
   fi
   msg_br
+}
+
+install_extensions() {
+  if [[ "${add_extensions}" == "recommended" || "${add_extensions}" == "useful" ]]; then
+    ext="${dest_dir}/extensions"
+    dbg_hdr "EXTENSIONS"; msg_br
+    msg_nc_nb "Installing " "recommended"; msg " extensions..."
+    # extensions already integrated in forge
+    if [[ "${fork}" == "a1111" ]]; then
+      if [[ "${dry_run}" != true ]]; then
+        git clone https://github.com/Mikubill/sd-webui-controlnet "${ext}/sd-webui-controlnet.git"
+        git clone https://github.com/pkuliyi2015/multidiffusion-upscaler-for-automatic1111.git "${ext}/multidiffusion-upscaler-for-automatic1111"
+      else
+        dry_msg "git clone https://github.com/Mikubill/sd-webui-controlnet.git ${ext}/sd-webui-controlnet"
+        dry_msg "git clone https://github.com/pkuliyi2015/multidiffusion-upscaler-for-automatic1111.git ${ext}/multidiffusion-upscaler-for-automatic1111"
+      fi
+    fi
+    # other recommended extensions
+    if [[ "${dry_run}" != true ]]; then
+      git clone https://github.com/BlafKing/sd-civitai-browser-plus.git "${ext}/sd-civitai-browser-plus"
+      git clone https://github.com/alexandersokol/sd-model-organizer.git "${ext}/sd-model-organizer"
+      git clone https://github.com/zanllp/sd-webui-infinite-image-browsing.git "${ext}/sd-webui-infinite-image-browsing"
+      git clone https://github.com/hnmr293/sd-webui-cutoff.git "${ext}/sd-webui-cutoff"
+    else
+      dry_msg "git clone https://github.com/BlafKing/sd-civitai-browser-plus.git ${ext}/sd-civitai-browser-plus"
+      dry_msg "git clone https://github.com/alexandersokol/sd-model-organizer.git ${ext}/sd-model-organizer"
+      dry_msg "git clone https://github.com/zanllp/sd-webui-infinite-image-browsing.git ${ext}/sd-webui-infinite-image-browsing"
+      dry_msg "git clone https://github.com/hnmr293/sd-webui-cutoff.git ${ext}/sd-webui-cutoff"
+    fi
+    msg_br
+  fi
+
+  # non-essential extensions
+  if [[ "${add_extensions}" == "useful" ]]; then
+    msg_nc_nb "Installing " "non-essential"; msg " extensions..."
+    # a1111 specific extensions
+    if [[ "${fork}" == "a1111" ]]; then
+      if [[ "${dry_run}" != true ]]; then
+        git clone https://github.com/deforum-art/sd-webui-deforum.git "${ext}/deforum-for-automatic1111-webui"
+        git clone https://github.com/continue-revolution/sd-webui-animatediff.git "${ext}/sd-webui-animatediff"
+      else
+        dry_msg "git clone https://github.com/deforum-art/sd-webui-deforum.git ${ext}/deforum-for-automatic1111-webui"
+        dry_msg "git clone https://github.com/continue-revolution/sd-webui-animatediff.git ${ext}/sd-webui-animatediff"
+      fi
+    fi
+    # forge specific extensions
+    if [[ "${fork}" == "forge" ]]; then
+      if [[ "${dry_run}" != true ]]; then
+        git clone https://github.com/deforum-art/sd-forge-deforum.git "${ext}/sd-forge-deforum"
+        git clone https://github.com/continue-revolution/sd-forge-animatediff.git "${ext}/sd-webui-animatediff"
+      else
+        dry_msg "git clone https://github.com/deforum-art/sd-forge-deforum.git ${ext}/sd-forge-deforum"
+        dry_msg "git clone https://github.com/continue-revolution/sd-forge-animatediff.git ${ext}/sd-webui-animatediff"
+      fi
+    fi
+    # common extensions
+    if [[ "${dry_run}" != true ]]; then
+      git clone https://github.com/canisminor1990/sd-webui-lobe-theme.git "${ext}/sd-webui-lobe-theme"
+      git clone https://github.com/DominikDoom/a1111-sd-webui-tagcomplete.git "${ext}/a1111-sd-webui-tagcomplete"
+      git clone https://github.com/adieyal/sd-dynamic-prompts.git "${ext}/sd-dynamic-prompts"
+      git clone https://github.com/vladmandic/sd-extension-system-info.git "${ext}/sd-extension-system-info"
+      git clone https://github.com/hako-mikan/sd-webui-regional-prompter.git "${ext}/sd-webui-regional-prompter"
+    else
+      dry_msg "git clone https://github.com/canisminor1990/sd-webui-lobe-theme.git ${ext}/sd-webui-lobe-theme"
+      dry_msg "git clone https://github.com/DominikDoom/a1111-sd-webui-tagcomplete.git ${ext}/a1111-sd-webui-tagcomplete"
+      dry_msg "git clone https://github.com/adieyal/sd-dynamic-prompts.git ${ext}/sd-dynamic-prompts"
+      dry_msg "git clone https://github.com/vladmandic/sd-extension-system-info.git${ext}/sd-extension-system-info"
+      dry_msg "git clone https://github.com/hako-mikan/sd-webui-regional-prompter.git ${ext}/sd-webui-regional-prompter"
+    fi
+    msg_br
+  fi
 }
 
 # show system info
@@ -860,6 +939,9 @@ main() {
 
   # apply patches
   apply_patches
+
+  # install extensions
+  install_extensions
 
   # run webui
   msg_nc "Starting " "${fork}"
