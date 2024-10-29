@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.4
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/10/28 21:41:12
+# Last modified: 2024/10/29 14:34:50
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -337,26 +337,38 @@ parase_command_line_arguments() {
 
 # get basic system info
 get_basic_system_info() {
-  msg "Detecting basic system information..."
+  if [[ "${show_info}" != true ]]; then
+    msg "Detecting basic system information..."
+  fi
 
   if [[ "$(sysctl -n machdep.cpu.brand_string)" =~ ^.*"Intel".*$ ]]; then
     cpu="intel"
-    msg_nc "Running on " "Intel"
+    if [[ "${show_info}" != true ]]; then
+      msg_nc "Running on " "Intel"
+    fi
   else
     cpu="arm"
-    msg_nc "Running on " "ARM"
+    if [[ "${show_info}" != true ]]; then
+      msg_nc "Running on " "ARM"
+    fi
   fi
 
   ram="$(system_profiler SPHardwareDataType | sed -n '/Memory:/s/[^0-9]*//gp')"
-  msg_nc "Memory: " "${ram} GB"
+  if [[ "${show_info}" != true ]]; then
+    msg_nc "Memory: " "${ram} GB"
+  fi
 
   if [[ "${ignore_vm}" != true && "$(system_profiler SPHardwareDataType | grep -c "Identifier.*VirtualMac")" -eq 1 ]]; then
     vm=true
-    msg_br
-    warn_msg "Running inside virtual machine"
+    if [[ "${show_info}" != true ]]; then
+      msg_br
+      warn_msg "Running inside virtual machine"
+    fi
   fi
 
-  msg_br
+  if [[ "${show_info}" != true ]]; then
+    msg_br
+  fi
 }
 
 # set the repository, branch and destination folder
@@ -389,7 +401,7 @@ set_repo_and_dest_dir() {
 # install Homebrew
 install_homebrew() {
   msg_nc_nb "Checking for " "Homebrew"; msg "..."
-  if [[ -z "$(which brew)" ]]; then
+  if [[ -z "${brew_path}" ]]; then
     msg_br
     msg "Installing Homebrew..."
     if [[ "${dry_run}" != true ]]; then
@@ -606,6 +618,26 @@ show_python_versions() {
   fi
 }
 
+# get brew info
+get_brew_info() {
+  brew_path="$(which brew)"
+  if [[ -z "$brew_path" ]]; then
+    brew_info="NOT INSTALLED"
+  else
+    if [[ "$brew_path" == /opt/homebrew/* ]]; then
+      brew_info="ARM"
+    else
+      brew_info="Intel"
+    fi
+  fi
+}
+
+# display brew info
+show_brew_info() {
+  dbg_hdr "HOMEBREW INFORMATION"
+  msg_cn "Homebrew:" " ${brew_info}"
+}
+
 # display debug info
 debug_info() {
   dbg_hdr "SCRIPT"
@@ -768,9 +800,10 @@ main() {
   welcome_message
 
   # get basic system info
-  if [[ "${show_info}" != true ]]; then
-    get_basic_system_info
-  fi
+  get_basic_system_info
+
+  # get brew info
+  get_brew_info
 
   # set the repository, branch and destination folder
   set_repo_and_dest_dir
@@ -786,6 +819,21 @@ main() {
     msg_br
     show_python_versions
     msg_br
+    show_brew_info
+    msg_br
+  fi
+
+  if [[ "${brew_info}" == "Intel" && "${cpu}" == "arm" ]]; then
+    if [[ "${show_info}" == true ]]; then
+      warn_msg "You are using Homebrew for ${!color}Intel${nc} on ${!color}ARM${nc} CPU!"
+      msg "You will not be able to properly install Stable Diffusion using this script."
+      msg_br
+    else
+      err_msg "You are using Homebrew for ${!color}Intel${nc} on ${!color}ARM${nc} CPU!"
+      msg "Please completely remove your current Homebrew installation before running this script again."
+      msg_br
+      exit 1
+    fi
   fi
 
   # exit after showing info
