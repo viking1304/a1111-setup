@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.4
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/10/29 21:57:18
+# Last modified: 2024/10/29 23:14:50
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -515,19 +515,23 @@ install_webui() {
     # force webui upgrade
     if [[ -d ".git" ]]; then
       if [[ "${dry_run}" != true ]]; then
-        git reset --hard origin/"${branch}"
+        git reset --hard "origin/${branch}"
       else
-        dry_msg "git reset --hard origin/${branch}"
+        dry_msg "git reset --hard \"origin/${branch}\""
       fi
     else
       if [[ "${dry_run}" != true ]]; then
         git init
         git remote add origin "$repo"
         git fetch --all
-        git reset --hard origin/"${branch}"
-        git branch --set-upstream-to=origin/"${branch}" "${branch}"
+        git reset --hard "origin/${branch}"
+        git branch --set-upstream-to="origin/${branch}" "${branch}"
       else
-        dry_msg "git init && git remote add origin \"$repo\" && git fetch --all && git reset --hard origin/${branch} && git branch --set-upstream-to=origin/${branch} ${branch}"
+        dry_msg "git init"
+        dry_msg "git remote add origin \"$repo\""
+        dry_msg "git fetch --all"
+        dry_msg "git reset --hard \"origin/${branch}\""
+        dry_msg "git branch --set-upstream-to=\"origin/${branch}\" \"${branch}\""
       fi
     fi
     if [[ "${dry_run}" != true ]]; then
