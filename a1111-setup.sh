@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.4
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/10/30 19:47:30
+# Last modified: 2024/10/30 22:47:30
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -841,14 +841,15 @@ patch_file () {
         curl_opts="-s"
         git_opts="-q --index"
       fi
-      if curl $curl_opts "$1" | git apply $git_opts; then
+      # shellcheck disable=SC2086
+      if curl ${curl_opts} "$1" | git apply ${git_opts}; then
         msg "Successfully applied patch"
       else
         err_msg "Could not apply patch"
         exit 1
       fi
     else
-      dry_msg "curl \"$1\" | git apply $git_opts"
+      dry_msg "curl \"$1\" | git apply ${git_opts}"
     fi
   else
     err_msg "SHA256 mismatch"
