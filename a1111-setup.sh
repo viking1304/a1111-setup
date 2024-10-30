@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.4
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/10/30 18:48:11
+# Last modified: 2024/10/30 19:29:47
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -593,7 +593,8 @@ install_webui() {
 
 install_extensions() {
   if [[ "${add_extensions}" == "recommended" || "${add_extensions}" == "useful" ]]; then
-    dbg_hdr "EXTENSIONS"; msg_br
+    dbg_hdr "EXTENSIONS"
+    msg_br
     msg_nc_nb "Installing " "recommended"; msg " extensions..."
     # extensions already integrated in forge
     if [[ "${fork}" == "a1111" ]]; then
@@ -880,7 +881,8 @@ apply_patches() {
     return
   fi
 
-  msg "FIXES" "${warn_color}"; msg_br
+  dbg_hdr "FIXES"
+  msg_br
 
   # set recommended command line args
   if [[ "${vm}" != true ]]; then
