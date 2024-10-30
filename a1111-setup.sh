@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.4
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/10/30 22:52:30
+# Last modified: 2024/10/30 23:48:09
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -599,8 +599,6 @@ install_extensions() {
     # extensions already integrated in forge
     if [[ "${fork}" == "a1111" ]]; then
       if [[ "${dry_run}" != true ]]; then
-        # temporary fix for controlnet
-        patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/develop/patches/controlnet-requirements-fix.patch" "8fe934641fcec217f4f40bd75a6bf067941f8531ff98da4fc10e8946e61b55fd"
         git clone https://github.com/Mikubill/sd-webui-controlnet "${ext}/sd-webui-controlnet.git"
         git clone https://github.com/pkuliyi2015/multidiffusion-upscaler-for-automatic1111.git "${ext}/multidiffusion-upscaler-for-automatic1111"
       else
@@ -884,9 +882,16 @@ apply_patches() {
     return
   fi
 
-  msg_nb "TEMPORARY PATCHES" "${warn_color}"; msg " - not needed after the release of A1111 v1.11"; msg_br
+  msg_nb "TEMPORARY FIXES" "${warn_color}"; msg " - not needed after the release of A1111 v1.11"; msg_br
 
   if [[ "${fork}" == "a1111" ]]; then
+    if [[ "${add_extensions}" == "recommended" || "${add_extensions}" == "useful" ]]; then
+        msg_cn "Applying patch: " "Temporary fix for controlnet"
+        msg "https://github.com/Mikubill/sd-webui-controlnet/issues/2698"
+        patch_file "https://raw.githubusercontent.com/viking1304/a1111-setup/develop/patches/controlnet-requirements-fix.patch" "8fe934641fcec217f4f40bd75a6bf067941f8531ff98da4fc10e8946e61b55fd"
+		msg_br
+    fi
+
     msg_cn "Applying patch: " "Update stable diffusion 1.5 URL"
     msg "https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/16460"
     patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/f57ec2b53b2fd89672f5611dee3c5cb33738c30a.patch?full_index=1" "29d495dbf3cca6e69f6a535a0708f480d35f6886dd4adce3a9ef0426221f5da6"
