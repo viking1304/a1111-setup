@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.4
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/10/30 22:47:30
+# Last modified: 2024/10/30 22:52:30
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -833,13 +833,13 @@ debug_info() {
 patch_file () {
   local sha256
   local curl_opts=""
-  local git_opts="-v --index"
+  local git_opts="-v"
   sha256=$(curl -s "$1" | shasum -a 256 - | cut -d " " -f1)
   if [[ "${sha256}" == "$2" ]]; then
     if [[ "${dry_run}" != true ]]; then
       if [[ "${debug}" != true ]]; then
         curl_opts="-s"
-        git_opts="-q --index"
+        git_opts="-q"
       fi
       # shellcheck disable=SC2086
       if curl ${curl_opts} "$1" | git apply ${git_opts}; then
