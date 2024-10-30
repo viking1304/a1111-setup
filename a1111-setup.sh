@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.4
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/10/30 19:29:47
+# Last modified: 2024/10/30 19:47:30
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -880,6 +880,16 @@ apply_patches() {
   if [[ "${fix}" == "none" ]]; then
     return
   fi
+
+  msg_nb "TEMPORARY PATCHES" "${warn_color}"; msg " - not needed after the release of A1111 v1.11"; msg_br
+
+  if [[ "${fork}" == "a1111" ]]; then
+    msg_cn "Applying patch: " "Update stable diffusion 1.5 URL"
+    msg "https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/16460"
+    patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/f57ec2b53b2fd89672f5611dee3c5cb33738c30a.patch?full_index=1" "29d495dbf3cca6e69f6a535a0708f480d35f6886dd4adce3a9ef0426221f5da6"
+    patch_file "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/c9a06d1093df828c7ff1dd356f38cf5ae41c1227.patch?full_index=1" "062fd309cb851ad69f2fb9131d46c3e79975b1795b5f922892ddf412951fee09"
+  fi
+  msg_br
 
   dbg_hdr "FIXES"
   msg_br
