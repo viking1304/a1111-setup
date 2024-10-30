@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.4
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/10/30 18:05:32
+# Last modified: 2024/10/30 18:48:11
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -259,12 +259,13 @@ parase_command_line_arguments() {
     display_help_item "-d folder_name" "specify the destination folder for webui installation"
     display_help_item "-o forge" "install Forge"
     display_help_item "-e recommended|useful" "install recommended extensions only, or include additional useful ones as well"
+    display_help_item "-s folder_name" "specify the folder with your backed up settings"
     display_help_item "-c red|green|yellow|blue|magenta|cyan|no-color" "use specified color for messages"
     msg_br
   }
 
   # parse command line arguments using getopts
-  while getopts ':hbtrif:d:o:e:c:' opt; do
+  while getopts ':hbtrif:d:o:e:s:c:' opt; do
     case $opt in
       h)
         # just set the flag, because the user might want to use a custom color
@@ -311,6 +312,9 @@ parase_command_line_arguments() {
           exit 1
         fi
         add_extensions="${OPTARG}"
+        ;;
+      s)
+        settings_dir="${OPTARG}"
         ;;
       c)
         # handle invalid colors
@@ -657,6 +661,81 @@ install_extensions() {
   fi
 }
 
+# restore settings
+restore_settings() {
+  # do not try to restore anything if settings_dir is not set
+  if [[ -z "${settings_dir}" ]]; then
+    return
+  fi
+  # treat settings folder as subfolder of script directory, unless it starts with slash
+  if [[ "${settings_dir:0:1}" != '/' ]]; then
+    settings_dir="${script_dir}/${settings_dir}"
+  fi
+  # remove trailing slash
+  settings_dir="${settings_dir%/}"
+
+  if [[ -d "${settings_dir}" ]]; then
+    dbg_hdr "SETTINGS"
+    msg_br
+    msg_nc_nb "Restoring settings from " "${settings_dir}"; msg "..."
+    # restore config.json if it exists
+    if [[ -f "${settings_dir}/config.json" ]]; then
+      if [[ "${dry_run}" != true ]]; then
+        cp "${settings_dir}/config.json" "${dest_dir}/"
+      else
+        dry_msg "cp \"${settings_dir}/config.json\" \"${dest_dir}/\""
+      fi
+    fi
+    # restore lobe_theme_config.json if it exists
+    # if forge-specific lobe_theme_config.json exists it should be used for forge
+    if [[ "${fork}" == "forge" && -f "${settings_dir}/lobe-theme/lobe_theme_config_forge.json" ]]; then
+      if [[ "${dry_run}" != true ]]; then
+        if [[ -d "${ext}/sd-webui-lobe-theme" ]]; then
+          cp "${settings_dir}/lobe-theme/lobe_theme_config_forge.json" "${ext}/sd-webui-lobe-theme/lobe_theme_config.json"
+        fi
+      else
+        dry_msg "cp \"${settings_dir}/lobe-theme/lobe_theme_config_forge.json\" \"${ext}/sd-webui-lobe-theme/lobe_theme_config.json\""
+      fi
+    else
+      # if forge-specific lobe_theme_config.json doesn't exist, the default one will be used for both forks
+      # otherwise the default lobe_theme_config.json will be used for A1111 only
+      if [[ -f "${settings_dir}/lobe-theme/lobe_theme_config.json" ]]; then
+        if [[ "${dry_run}" != true ]]; then
+          if [[ -d "${ext}/sd-webui-lobe-theme" ]]; then
+            cp "${settings_dir}/lobe-theme/lobe_theme_config.json" "${ext}/sd-webui-lobe-theme/lobe_theme_config.json"
+          fi
+        else
+          dry_msg "cp \"${settings_dir}/lobe-theme/lobe_theme_config.json\" \"${ext}/sd-webui-lobe-theme/lobe_theme_config.json\""
+        fi
+      fi
+    fi
+    # restore model-organizer database if it exists
+    if [[ -f "${settings_dir}/model-organizer/database.sqlite" ]]; then
+      if [[ "${dry_run}" != true ]]; then
+        if [[ -d "${ext}/sd-model-organizer" ]]; then
+          cp "${settings_dir}/model-organizer/database.sqlite" "${ext}/sd-model-organizer"
+        fi
+      else
+        dry_msg "cp \"${settings_dir}/model-organizer/database.sqlite\" \"${ext}/sd-model-organizer\""
+      fi
+    fi
+    # restore wildcards if folder exists
+    if  [[ -d "${settings_dir}/wildcards" ]]; then
+      if [[ "${dry_run}" != true ]]; then
+        if [[ -d "${ext}/sd-dynamic-prompts" ]]; then
+          cp -r "${settings_dir}/wildcards" "${ext}/sd-dynamic-prompts"
+        fi
+      else
+        dry_msg "cp -r \"${settings_dir}/wildcards\" \"${ext}/sd-dynamic-prompts\""
+      fi
+    fi
+    msg_br
+  else
+    warn_msg "Settings folder ${!color}${settings_dir}${nc} not fund!"
+    msg_br
+  fi
+}
+
 # show system info
 show_sys_info () {
   get_sys_info() {
@@ -875,6 +954,9 @@ main() {
     exit 1
   fi
 
+  # find the directory where the script is located
+  script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
   # parse command line arguments
   parase_command_line_arguments "$@"
 
@@ -945,8 +1027,12 @@ main() {
 
   # set extensions folder
   ext="${dest_dir}/extensions"
+
   # install extensions
   install_extensions
+
+  # restore settings
+  restore_settings
 
   # run webui
   msg_nc "Starting " "${fork}"
