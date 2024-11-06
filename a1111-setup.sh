@@ -13,7 +13,7 @@
 # Author: Aleksandar Milanovic (viking1304)
 # Version: 0.2.4
 # Created: 2023/12/12 19:30:51
-# Last modified: 2024/10/30 23:48:09
+# Last modified: 2024/11/06 23:42:14
 
 # Copyright (c) 2024 Aleksandar Milanovic
 # https://github.com/viking1304/
@@ -829,33 +829,67 @@ debug_info() {
   msg_br
 }
 
-# download patch file from URL and patch files
-patch_file () {
+# download file from URL
+download_file () {
   local sha256
-  local curl_opts=""
-  local git_opts="-v"
+  local curl_opts=()
+  local formatted_opts=()
+  local output="$2"
+  # compute SHA256 hash of the file content at the URL
   sha256=$(curl -s "$1" | shasum -a 256 - | cut -d " " -f1)
-  if [[ "${sha256}" == "$2" ]]; then
+  if [[ "${sha256}" == "$3" ]]; then
+    if [[ "${debug}" != true ]]; then
+      curl_opts+=("-s")
+    fi
+    # add parameter to download the file if destination is specified
+    if [[ -n "$output" ]]; then
+      curl_opts+=("-o" "$output")
+    fi
     if [[ "${dry_run}" != true ]]; then
-      if [[ "${debug}" != true ]]; then
-        curl_opts="-s"
-        git_opts="-q"
-      fi
-      # shellcheck disable=SC2086
-      if curl ${curl_opts} "$1" | git apply ${git_opts}; then
-        msg "Successfully applied patch"
+      if curl "${curl_opts[@]}" "$1"; then
+        msg_cn "Successfully downloaded" " $1"
       else
-        err_msg "Could not apply patch"
+        err_msg "Could not download $1"
         exit 1
       fi
     else
-      dry_msg "curl \"$1\" | git apply ${git_opts}"
+      # create properly formatted string for dry run output
+      for opt in "${curl_opts[@]}"; do
+        if [[ "$opt" =~ \  ]]; then
+          formatted_opts+=("\"$opt\"")
+        else
+          formatted_opts+=("$opt")
+        fi
+      done
+      dry_msg "curl ${formatted_opts[*]} \"$1\""
     fi
   else
     err_msg "SHA256 mismatch"
-    msg_nc "Expected: " "$2"
+    # display expected and found SHA256 hashes
+    msg_nc "Expected: " "$3"
     msg_nc "Found: " "${sha256}"
     exit 1
+  fi
+}
+
+# download patch file from URL and patch file(s)
+patch_file () {
+  local url="$1"
+  local sha256_expected="$2"
+  local git_opts="-q"
+  # use verbose mode if debug mode is enabled
+  if [[ "${debug}" == true ]]; then
+    git_opts="-v"
+  fi
+  if [[ "${dry_run}" != true ]]; then
+    if download_file "$url" "" "$sha256_expected" | git apply "${git_opts}"; then
+      msg "Successfully applied patch"
+    else
+      err_msg "Could not apply patch"
+      exit 1
+    fi
+  else
+    dry_msg "curl -s \"$1\" | git apply ${git_opts}"
   fi
 }
 
